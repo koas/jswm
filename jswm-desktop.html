@@ -1,0 +1,90 @@
+<!--
+JSWM Desktop.
+
+This component is a desktop, where panels and windows live.
+
+Author: Koas (alvaro.calleja@gmail.com)
+v1.0
+
+Properties:
+
+backgroundColor: default is 115287
+wallpaperUrl: URL for the wallpaper. Default is none (no wallpaper)
+wallpaperMode: "center" center the image on screen, no repeating.
+			   "mosaic" repeat the image horizontally and vertically
+			   "contain" resize the image to make sure the image is fully 
+			   visible.
+			   "cover" resize the image to cover the entire container, even if 
+			   it has to stretch the image or cut a little bit off one of the 
+			   edges. This is the default value.
+
+-->
+
+
+<dom-module id="jswm-desktop">
+	
+	<template>
+		<style>
+		#main {
+			width: 100%;
+    		height: 100%;
+    		min-height: 20px;
+    		position: absolute;
+    		left: 0;
+    		top: 0;
+    		display: flex;
+    		flex-direction: column;
+		}
+		#content {
+			flex: 1;
+		}
+		.center {
+			background-position: center center;
+			background-repeat: no-repeat;
+		}
+		.mosaic {
+			background-repeat: repeat;
+		}
+		.contain {
+			background-repeat: no-repeat;
+	  		background-position: center center;
+	  		background-size: contain;
+		}
+		.cover {
+			background-repeat: no-repeat;
+	  		background-position: center center;
+	  		background-size: cover;
+		}
+		</style>
+		<div id="main">
+			<div>
+				<slot name="panelTop"></slot>
+			</div>
+			<div id="content" class$="{{wallpaperMode}}"
+				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})"></div>
+			<div>
+				<slot name="panelBottom"></slot>
+			</div>
+		</div>
+	</template>
+
+	<script>
+	/*jshint esversion: 6 */
+
+	class JSWMdesktop extends Polymer.Element 
+	{
+		static get is() {return "jswm-desktop";}
+
+		static get properties()
+		{
+			return {
+				backgroundColor: {type: String, value: "#115287", reflectToAttribute: true},
+				wallpaperUrl: {type: String, value: "", reflectToAttribute: true},
+				wallpaperMode: {type: String, value: "cover", reflectToAttribute: true}
+			};
+		}
+	}
+
+	customElements.define(JSWMdesktop.is, JSWMdesktop);
+	</script>
+</dom-module>

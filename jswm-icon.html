@@ -1,0 +1,48 @@
+<!--
+JSWM Icon.
+
+This component is an icon (an image with a caption).
+
+Author: Koas (alvaro.calleja@gmail.com)
+v1.0
+
+Properties:
+
+url: URL for the image.
+title: caption for the image on mouse over.
+
+-->
+
+
+<dom-module id="jswm-icon">
+	
+	<template>
+		<style>
+		img {
+			max-height: 100%;
+			cursor: pointer;
+			box-sizing: border-box;
+		}
+		</style>
+		<img title="{{title}}" src="{{url}}" id="image"/>		
+	</template>
+
+	<script>
+	/*jshint esversion: 6 */
+
+	class JSWMicon extends Polymer.Element 
+	{
+		static get is() {return "jswm-icon";}
+
+		static get properties()
+		{
+			return {
+				url: {type: String, value: "https://www.polymer-project.org/images/logos/p-logo.png", reflectToAttribute: true},
+				title: {type: String, value: "", reflectToAttribute: true}
+			};
+		}
+	}
+
+	customElements.define(JSWMicon.is, JSWMicon);
+	</script>
+</dom-module>

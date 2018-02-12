@@ -1,0 +1,49 @@
+<!--
+JSWM Panel element. 
+
+A panel that sits on the top / bottom of the screen. 
+
+Author: Koas (alvaro.calleja@gmail.com)
+v1.0
+
+
+-->
+
+
+<dom-module id="jswm-panel">
+	
+	<template>
+		<style>
+		#main {
+			background-color: #393939;
+			display: flex;
+			height: 40px;
+		}
+		#middleContent {
+			flex: 1;
+		}
+		</style>
+
+		<div id="main">
+			<div>
+				<slot name="leftContent"></slot>
+			</div>
+			<div id="middleContent">
+				<slot name="mainContent"></slot>
+			</div>
+			<div>
+				<slot name="rightContent"></slot>
+			</div>
+		</div>
+
+	</template>
+	<script>
+	/*jshint esversion: 6 */
+	class JSWpanel extends Polymer.Element 
+	{
+		static get is() {return "jswm-panel";}
+	}
+
+	customElements.define(JSWpanel.is, JSWpanel);
+	</script>
+</dom-module>
