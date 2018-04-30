@@ -1,18 +1,65 @@
 <!--
-JSWM Main element. 
+JSWM Main element
 
 This is the parent element for all our JSWM components.
 
 Author: Koas (alvaro.calleja@gmail.com)
-v1.0
+https://github.com/koas/jswm
 
 -->
-
 <script>
 /*jshint esversion: 6 */
 class JSWmain extends Polymer.Element 
 {
     static get is() {return "jswm-main";}
+
+    constructor() 
+    {
+        super();
+        
+        this.activeDesktop = null;
+
+        // Default values for config
+        this.configData = {
+        	foo1: "bar1",
+        	foo2: "bar2"
+        };
+        
+        let configNode = this.querySelector("[type='text/jswm-config']");
+        if (configNode)
+        {
+        	try
+        	{
+        		let nodeData = JSON.parse(configNode.textContent);
+
+                this.configData = Object.assign(this.configData, nodeData);
+	        }
+	        catch(e)
+	        {
+	        	console.error("Error parsing jswm-main JSON config data.");
+	        	console.error(e);
+	        }
+        }
+        console.info(this.configData);
+    }
+
+    connectedCallback()
+    {
+        super.connectedCallback();
+        
+        // If user clicks on an icon with id appMenuicon we open the main
+        // app menu
+        this.addEventListener("jswmIconClicked", function(e)
+        {
+            if (e.detail.id == "appMenuIcon" && this.activeDesktop)
+                this.activeDesktop.toggleAppMenu();
+        });
+    }
+
+    registerActiveDesktop(element)
+    {
+        this.activeDesktop = element;
+    }
 }
 
 customElements.define(JSWmain.is, JSWmain);

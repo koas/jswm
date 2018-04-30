@@ -1,10 +1,10 @@
 <!--
-JSWM Desktop.
+JSWM Desktop
 
 This component is a desktop, where panels and windows live.
 
 Author: Koas (alvaro.calleja@gmail.com)
-v1.0
+https://github.com/koas/jswm
 
 Properties:
 
@@ -37,6 +37,7 @@ wallpaperMode: "center" center the image on screen, no repeating.
 		}
 		#content {
 			flex: 1;
+			position: relative;
 		}
 		.center {
 			background-position: center center;
@@ -55,13 +56,44 @@ wallpaperMode: "center" center the image on screen, no repeating.
 	  		background-position: center center;
 	  		background-size: cover;
 		}
+		.appMenuContainer {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 0;
+			background: #000;
+			background: rgba(0,0,0,0.75);
+			display: flex;
+			opacity: 0;
+			justify-content: center;
+			align-items: center;
+			transition-property: opacity height;
+			transition-duration: 0.5s;
+		}
+		.appMenuContainerOn {
+			height: 100%;
+			opacity: 1;
+		}
+		#appMenuContainer nav {
+			width: calc(100% - 40px);
+			height: calc(100% - 40px);
+			max-width: 960px;
+			max-height: 580px;
+			background: #e8e8e8;
+			border-radius: 6px;
+		}
 		</style>
 		<div id="main">
 			<div>
 				<slot name="panelTop"></slot>
 			</div>
 			<div id="content" class$="{{wallpaperMode}}"
-				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})"></div>
+				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})">
+				<div id="appMenuContainer" class="appMenuContainer">
+					<nav></nav>
+				</div>	 	
+			</div>
 			<div>
 				<slot name="panelBottom"></slot>
 			</div>
@@ -82,6 +114,31 @@ wallpaperMode: "center" center the image on screen, no repeating.
 				wallpaperUrl: {type: String, value: "", reflectToAttribute: true},
 				wallpaperMode: {type: String, value: "cover", reflectToAttribute: true}
 			};
+		}
+
+		constructor() 
+	    {
+	        super();
+	        this.appMenuOpened = false;
+	    }
+
+		connectedCallback()
+	    {
+	        super.connectedCallback();
+
+	        // Register the desktop in the main JSWM element (only if we are
+	        // inside one)
+	        if (this.parentElement.tagName.toLowerCase() == "jswm-main")
+	        	this.parentElement.registerActiveDesktop(this);
+	    }
+		
+		toggleAppMenu()
+		{
+			if (this.appMenuOpened)
+				this.$.appMenuContainer.classList.remove("appMenuContainerOn");
+			else this.$.appMenuContainer.classList.add("appMenuContainerOn");
+			
+			this.appMenuOpened = !this.appMenuOpened;
 		}
 	}
 

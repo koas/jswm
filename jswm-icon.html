@@ -1,15 +1,19 @@
 <!--
-JSWM Icon.
+JSWM Icon
 
 This component is an icon (an image with a caption).
 
 Author: Koas (alvaro.calleja@gmail.com)
-v1.0
+https://github.com/koas/jswm
 
 Properties:
 
 url: URL for the image.
 title: caption for the image on mouse over.
+
+Events:
+
+click: emitted when the icon is clicked.
 
 -->
 
@@ -25,7 +29,7 @@ title: caption for the image on mouse over.
 			padding: 2px;
 		}
 		</style>
-		<img title="{{title}}" src="{{url}}" id="image"/>		
+		<img on-click="clicked" title="{{title}}" src="{{url}}" id="{{id}}"/>		
 	</template>
 
 	<script>
@@ -39,9 +43,21 @@ title: caption for the image on mouse over.
 		{
 			return {
 				url: {type: String, value: "https://www.polymer-project.org/images/logos/p-logo.png", reflectToAttribute: true},
-				title: {type: String, value: "", reflectToAttribute: true}
+				title: {type: String, value: "", reflectToAttribute: true},
+				id: {type: String, value: "jswmIcon-", reflectToAttribute: true}
 			};
 		}
+
+        clicked()
+        {
+        	let detail = {id: this.id};
+        	let event = new CustomEvent("jswmIconClicked", {
+        		detail: detail,
+        		bubbles: true,
+        		composed: true
+        	});
+        	this.dispatchEvent(event);
+        }
 	}
 
 	customElements.define(JSWMicon.is, JSWMicon);
