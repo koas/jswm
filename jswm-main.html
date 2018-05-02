@@ -9,6 +9,9 @@ https://github.com/koas/jswm
 -->
 <script>
 /*jshint esversion: 6 */
+/* jshint -W097 */
+"use strict";
+
 class JSWmain extends Polymer.Element 
 {
     static get is() {return "jswm-main";}
@@ -20,10 +23,7 @@ class JSWmain extends Polymer.Element
         this.activeDesktop = null;
 
         // Default values for config
-        this.configData = {
-        	foo1: "bar1",
-        	foo2: "bar2"
-        };
+        this.configData = {};
         
         let configNode = this.querySelector("[type='text/jswm-config']");
         if (configNode)
@@ -52,7 +52,7 @@ class JSWmain extends Polymer.Element
         this.addEventListener("jswmIconClicked", function(e)
         {
             if (e.detail.id == "appMenuIcon" && this.activeDesktop)
-                this.activeDesktop.toggleAppMenu();
+                this.activeDesktop.toggleAppMenu(this.configData.apps);
         });
     }
 

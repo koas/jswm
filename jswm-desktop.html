@@ -69,19 +69,67 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			justify-content: center;
 			align-items: center;
 			transition-property: opacity height;
-			transition-duration: 0.5s;
+			transition-duration: 0.25s;
 		}
 		.appMenuContainerOn {
 			height: 100%;
 			opacity: 1;
 		}
-		#appMenuContainer nav {
+		.appMenuContainerInner {
 			width: calc(100% - 40px);
-			height: calc(100% - 40px);
-			max-width: 960px;
+			max-width: 980px;
 			max-height: 580px;
 			background: #e8e8e8;
-			border-radius: 6px;
+			border-radius: 8px;
+			display: flex;
+			flex-direction: column;
+			overflow: auto;
+		}
+		.appMenuHeader {
+			display: flex;
+			padding: 10px;
+		}
+		.appMenuHeaderFolder {
+			flex-grow: 1;
+			display: flex;
+			align-items: center;
+		}
+		.appMenuHeaderClose {
+			width: 32px;
+			height: 32px;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4ElEQVRYhcXWSQ6DMAxA0dw2kwmwjMtdEb0IXUUVcxJsh2WR+p8YbJQFXKyPgxI+DOBoARdlfRxcmFZJhAEcXZhWDdhtfpBAHOL7E5yIy7gE4jHOiciOcyCK45SI6vjJH/Ti8XSkOVGCIIvXIMjjJQi2eA6CPX6HEIufIcTje0STuFL/y+7CtBofQ5O4Buw0YC+KOLvnYoi7B44dkfO0syFKXjVyRM17ToZ4M2ReIygmXEJUfw1RTDjjY6j6HqQcr9kIzsXyiJDYapcIyZV6QLTY5xuEhc+3xT7XgJ31OP8AxupkenBG78AAAAAASUVORK5CYII=);
+			margin-right: 10px;
+			cursor: pointer;
+		}
+		.appMenuContent {
+			background: red;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+		.appMenuItem {
+			background-color: #fff;
+			margin: 10px;
+			padding: 10px;
+			width: 200px;
+			height: 100px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			line-height: 25px;
+			font-size: 15px;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    		transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    		border-radius: 4px;
+    		-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+    		user-select: none;
+    		cursor: pointer;
+		}
+		.appMenuItem:hover {
+  			box-shadow: 0 3px 5px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);
 		}
 		</style>
 		<div id="main">
@@ -91,7 +139,14 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			<div id="content" class$="{{wallpaperMode}}"
 				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})">
 				<div id="appMenuContainer" class="appMenuContainer">
-					<nav></nav>
+					<!--<nav id="appMenuNav"></nav>-->
+					<div class="appMenuContainerInner">
+						<div id="appMenuHeader" class="appMenuHeader">
+							<div class="appMenuHeaderFolder">Folder</div>
+							<div class="appMenuHeaderClose" on-click="toggleAppMenu"></div>
+						</div>
+						<div id="appMenuContent" class="appMenuContent"></div>
+					</div>
 				</div>	 	
 			</div>
 			<div>
@@ -102,6 +157,8 @@ wallpaperMode: "center" center the image on screen, no repeating.
 
 	<script>
 	/*jshint esversion: 6 */
+	/* jshint -W097 */
+	"use strict";
 
 	class JSWMdesktop extends Polymer.Element 
 	{
@@ -119,7 +176,9 @@ wallpaperMode: "center" center the image on screen, no repeating.
 		constructor() 
 	    {
 	        super();
+
 	        this.appMenuOpened = false;
+	        this.appData = null;
 	    }
 
 		connectedCallback()
@@ -132,13 +191,55 @@ wallpaperMode: "center" center the image on screen, no repeating.
 	        	this.parentElement.registerActiveDesktop(this);
 	    }
 		
-		toggleAppMenu()
+		toggleAppMenu(appData)
 		{
+			console.info(appData);
+			if (!this.appData)
+				this.appData = appData;
+
 			if (this.appMenuOpened)
 				this.$.appMenuContainer.classList.remove("appMenuContainerOn");
-			else this.$.appMenuContainer.classList.add("appMenuContainerOn");
+			else 
+			{
+				this.buildAppMenu(0);
+				this.$.appMenuContainer.classList.add("appMenuContainerOn");
+			}
 			
 			this.appMenuOpened = !this.appMenuOpened;
+		}
+
+		buildAppMenu(idParent)
+		{
+			let folders = [];
+			let apps = [];
+
+			for (let x = 0; x < this.appData.length; ++x)
+			{
+				let i = this.appData[x];
+				if (i.idParent != idParent)
+					continue;
+
+				if (i.url !== "")
+					apps.push(i);
+				else folders.push(i);
+			}
+
+			// Header with folder name and back button
+			let html = "";
+
+			// We display folders first, then apps
+			for (let x = 0; x < folders.length; ++x)
+			{
+				let i = folders[x];
+				html += `<div class="appMenuItem appMenuFolder" data-id="${i.id}">${i.caption}</div>`;
+			}
+			for (let x = 0; x < apps.length; ++x)
+			{
+				let i = apps[x];
+				html += `<div class="appMenuItem appMenuApp" data-url="${i.url}">${i.caption}</div>`;
+			}
+
+			this.$.appMenuContent.innerHTML = html;
 		}
 	}
 
