@@ -13,7 +13,8 @@ title: caption for the image on mouse over.
 
 Events:
 
-click: emitted when the icon is clicked.
+jswmIconClicked: emitted when the icon is clicked. The detail object contains 
+the id of the icon.
 
 -->
 
@@ -46,7 +47,7 @@ click: emitted when the icon is clicked.
 			return {
 				url: {type: String, value: "https://www.polymer-project.org/images/logos/p-logo.png", reflectToAttribute: true},
 				title: {type: String, value: "", reflectToAttribute: true},
-				id: {type: String, value: "jswmIcon-", reflectToAttribute: true}
+				id: {type: String, value: "jswmIcon", reflectToAttribute: true}
 			};
 		}
 

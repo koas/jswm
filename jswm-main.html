@@ -23,7 +23,7 @@ class JSWmain extends Polymer.Element
         this.activeDesktop = null;
 
         // Default values for config
-        this.configData = {};
+        this.configData = {apps: [], rootFolderCaption: "Home"};
         
         let configNode = this.querySelector("[type='text/jswm-config']");
         if (configNode)
@@ -32,7 +32,10 @@ class JSWmain extends Polymer.Element
         	{
         		let nodeData = JSON.parse(configNode.textContent);
 
-                this.configData = Object.assign(this.configData, nodeData);
+                Object.keys(nodeData).forEach((key) =>
+                {
+                    this.configData[key] = nodeData[key];
+                });
 	        }
 	        catch(e)
 	        {
@@ -40,7 +43,6 @@ class JSWmain extends Polymer.Element
 	        	console.error(e);
 	        }
         }
-        console.info(this.configData);
     }
 
     connectedCallback()
@@ -52,7 +54,8 @@ class JSWmain extends Polymer.Element
         this.addEventListener("jswmIconClicked", function(e)
         {
             if (e.detail.id == "appMenuIcon" && this.activeDesktop)
-                this.activeDesktop.toggleAppMenu(this.configData.apps);
+                this.activeDesktop.toggleAppMenu(this.configData.apps,
+                                                 this.configData.rootFolderCaption);
         });
     }
 

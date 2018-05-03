@@ -88,11 +88,24 @@ wallpaperMode: "center" center the image on screen, no repeating.
 		.appMenuHeader {
 			display: flex;
 			padding: 10px;
+			background-color: #d7d7d7;
 		}
 		.appMenuHeaderFolder {
 			flex-grow: 1;
 			display: flex;
 			align-items: center;
+		}
+		.appMenuHeaderFolderBack {
+			width: 32px;
+			height: 32px;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACOUlEQVRYhe2XT4jNURTH7/xhUDaWtpLYUrKgX2nUQyTdlI3xTPeec+85vzGY99495zelJsXGwmKSYqHkTylFxNrSxtZCycJiChHGGH4WbzuG6f38pObU3X3P/Xy6i3vPNWa5/rcaDa3Nxpj+fwJ3UWLIixLzya21wz2lMyEvSh+lXTscYypCXpSeZKxudh9EPRfyooSQfO1wR52LQPLdxXSsbng/sEwj67ynzpFaydbaASS9hqxzEDuHaoVnWTaIJDeAddbHtLdWuLV2JXK6iyyffJTdtcKzbGQVsj7AqB9GMe2sFe6cWwMkTzzJOxfT9lrhxhgDnF4DyVcM+hhJb/W6IMpNYLkKJJM+ynCj0RhaXIDkVciLEqM+r0IASe8g60MkeRHyokTWt8hy3p4YX7eggLV2tWd9hKzvfUw7qjzdZrO1Hii1gNMbjDLjY/vggsFGozHkWe8By0cf27uqlDDGmAPN5lpguRzyogSS8QVDzrkVwHIbSD/7KMNVSxhjjCfh7rsiIwsGsiwbBNbrwDoLMe3/KxKsU8jypYmtTb/K9HvSK0DyDahzuGoBa+0A5ukZULq/WK4PSS4h67wjOVq1hAudPSEvyuP+9JZFJYD0ArL+gCjNih36POtLzzr12yCQnO1OQxqqNACWaWB5+mdhSp3uPJhOVSXgSQGjzPxxA8Z0sntjpqIKARxTi6zzS2rypBDyovS+ta1XAYftfcg6t+TGET+x0VTwMbHWDjg3saHXfZar5/oJIbMtHe5+/g0AAAAASUVORK5CYII=);
+			margin: 0 20px 0 10px;
+			cursor: pointer;
+		}
+		#appMenuHeaderFolderName {
+			font-family: 'Raleway', sans-serif;
+			font-weight: 100;
+			font-size: 30px;
 		}
 		.appMenuHeaderClose {
 			width: 32px;
@@ -102,10 +115,10 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			cursor: pointer;
 		}
 		.appMenuContent {
-			background: red;
 			display: flex;
 			flex-wrap: wrap;
 			justify-content: center;
+			padding: 10px 0;
 		}
 		.appMenuItem {
 			background-color: #fff;
@@ -119,6 +132,7 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			text-align: center;
 			line-height: 25px;
 			font-size: 15px;
+			font-family: 'Roboto', sans-serif;
 			box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     		transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     		border-radius: 4px;
@@ -138,11 +152,14 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			</div>
 			<div id="content" class$="{{wallpaperMode}}"
 				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})">
+				<slot></slot>
 				<div id="appMenuContainer" class="appMenuContainer">
-					<!--<nav id="appMenuNav"></nav>-->
 					<div class="appMenuContainerInner">
 						<div id="appMenuHeader" class="appMenuHeader">
-							<div class="appMenuHeaderFolder">Folder</div>
+							<div class="appMenuHeaderFolder">
+								<div id="appMenuHeaderFolderBack" class="appMenuHeaderFolderBack" on-click="folderBack"></div>
+								<span id="appMenuHeaderFolderName">Folder</span>
+							</div>
 							<div class="appMenuHeaderClose" on-click="toggleAppMenu"></div>
 						</div>
 						<div id="appMenuContent" class="appMenuContent"></div>
@@ -179,6 +196,8 @@ wallpaperMode: "center" center the image on screen, no repeating.
 
 	        this.appMenuOpened = false;
 	        this.appData = null;
+	        this.rootCaption = "";
+	        this.folderStack = [];
 	    }
 
 		connectedCallback()
@@ -191,11 +210,10 @@ wallpaperMode: "center" center the image on screen, no repeating.
 	        	this.parentElement.registerActiveDesktop(this);
 	    }
 		
-		toggleAppMenu(appData)
+		toggleAppMenu(appData, rootCaption)
 		{
-			console.info(appData);
-			if (!this.appData)
-				this.appData = appData;
+			this.appData = appData;
+			this.rootCaption = rootCaption;
 
 			if (this.appMenuOpened)
 				this.$.appMenuContainer.classList.remove("appMenuContainerOn");
@@ -208,14 +226,27 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			this.appMenuOpened = !this.appMenuOpened;
 		}
 
+		folderBack()
+		{
+			this.folderStack.pop();
+			this.buildAppMenu(this.folderStack.pop());
+		}
+
 		buildAppMenu(idParent)
 		{
+			this.folderStack.push(idParent);
+
 			let folders = [];
 			let apps = [];
+			let parentName = this.rootCaption;
 
 			for (let x = 0; x < this.appData.length; ++x)
 			{
 				let i = this.appData[x];
+
+				if (i.id == idParent)
+					parentName = i.caption;
+
 				if (i.idParent != idParent)
 					continue;
 
@@ -224,22 +255,49 @@ wallpaperMode: "center" center the image on screen, no repeating.
 				else folders.push(i);
 			}
 
-			// Header with folder name and back button
-			let html = "";
+			// If inside a folder, show parent folder name
+			this.$.appMenuHeaderFolderName.innerHTML = parentName;
+			if (parentName == this.rootCaption)
+				this.$.appMenuHeaderFolderBack.style.visibility = "hidden";
+			else this.$.appMenuHeaderFolderBack.style.visibility = "visible";
 
 			// We display folders first, then apps
-			for (let x = 0; x < folders.length; ++x)
+			this.$.appMenuContent.innerHTML = "";
+			let items = folders.concat(apps);
+			for (let x = 0; x < items.length; ++x)
 			{
-				let i = folders[x];
-				html += `<div class="appMenuItem appMenuFolder" data-id="${i.id}">${i.caption}</div>`;
+				let i = items[x];
+				let f1 = document.createElement("div");
+				f1.classList.add("appMenuItem");
+				f1.innerHTML = i.caption;
+				f1.setAttribute("data-id", i.id);
+				f1.setAttribute("data-url", i.url);
+				f1.setAttribute("data-caption", i.caption);
+				f1.addEventListener("click", this.appMenuItemClicked.bind(this));
+				this.$.appMenuContent.appendChild(f1);
 			}
-			for (let x = 0; x < apps.length; ++x)
+		}
+
+		appMenuItemClicked(e)
+		{
+			let url = e.target.getAttribute("data-url");
+			if (url)
 			{
-				let i = apps[x];
-				html += `<div class="appMenuItem appMenuApp" data-url="${i.url}">${i.caption}</div>`;
+				this.openApp(url, caption);
+				return;
 			}
 
-			this.$.appMenuContent.innerHTML = html;
+			let id = e.target.getAttribute("data-id");
+			if (id)
+			{
+				this.buildAppMenu(id);
+				return;
+			}
+		}
+
+		openApp(url, caption)
+		{
+
 		}
 	}
 

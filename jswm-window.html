@@ -1,0 +1,205 @@
+<!--
+JSWM Window
+
+This component is a window (an iframe with a caption and borders).
+
+Author: Koas (alvaro.calleja@gmail.com)
+https://github.com/koas/jswm
+
+Properties:
+
+url: URL for the iframe
+title: caption for the window
+
+-->
+
+<dom-module id="jswm-window">
+
+	<template>
+		<style>
+		.main {
+			width: 300px;
+			height: 300px;
+			background: bisque;
+			position: absolute;
+			left: 580px;
+			top: 70px;
+			display: grid;
+			grid-template-columns: 6px auto 6px;
+			grid-template-rows: 6px auto 6px;
+			grid-template-areas: 
+			"nw n ne"
+			"w content e"
+			"sw s se";
+		}
+		.nw {
+			grid-area: nw;
+			background: red;
+			cursor: nw-resize;
+		}
+		.ne {
+			grid-area: ne;
+			background: green;
+			cursor: ne-resize;
+		}
+		.n {
+			grid-area: n;
+			background: blue;
+			cursor: n-resize;
+		}
+		.sw {
+			grid-area: sw;
+			background: red;
+			cursor: sw-resize;
+		}
+		.se {
+			grid-area: se;
+			background: green;
+			cursor: se-resize;
+		}
+		.s {
+			grid-area: s;
+			background: blue;
+			cursor: s-resize;
+		}
+		.w {
+			grid-area: w;
+			background: pink;
+			cursor: w-resize;
+		}
+		.e {
+			grid-area: e;
+			background: pink;
+			cursor: e-resize;
+		}
+		.content {
+			grid-area: content;
+			display: flex;
+			background: #fff;
+			flex-direction: column;
+		}
+		.title {
+			cursor: move;
+			display: flex;
+			border-bottom: 1px solid #eee;
+			padding: 5px;
+			align-items: center;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+    		user-select: none;
+		}
+		.ifr {
+			flex-grow: 1;
+			background: black;
+			border: 0;
+		}
+		.caption {
+			flex-grow: 1;
+			font-family: 'Raleway', sans-serif;
+			font-weight: 100;
+			font-size: 20px;
+		}
+		.close {
+			width: 16px;
+			height: 16px;
+			cursor: pointer;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoUlEQVQ4jZ3SSwqDMBAGYO+ReLWAMJCJOoW4CJg5kiBdlLYre7UuSrHB1Dxmlc3/MY80mvgK4GRTWF0/tTjw+nmM/lmCdP3UGuK7Qit2LRM5hIOWEsjf8LcAnNTEjxiSDJ8h2eEYUhwOkJFfhvxWHN7b9pu5VAC/bQM4WTRCbOZs5GxhSSRn2wqtMMS36C/MnfOA1Nw5QHDgtebOCq3QNC9vVkWLrEbgQiEAAAAASUVORK5CYII=);
+		}
+		</style>
+		<div id="main" class="main">
+			<div class="nw"></div>
+			<div class="ne"></div>
+			<div class="n"></div>
+			<div class="sw"></div>
+			<div class="se"></div>
+			<div class="s"></div>
+			<div class="e"></div>
+			<div class="w"></div>
+			<div class="content">
+				<div class="title" on-mousedown="startDrag" 
+					 on-mouseup="stopDrag" on-mousemove="doDrag">
+					<div class="caption">{{title}}</div>
+					<div class="close"></div>
+				</div>
+				<iframe class="ifr" src="{{url}}"></iframe>
+			</div>
+		</div>
+	</template>
+
+	<script>
+	/*jshint esversion: 6 */
+	/* jshint -W097 */
+	"use strict";
+	
+	class JSWMwindow extends Polymer.Element 
+	{
+		static get is() {return "jswm-window";}
+
+		static get properties()
+		{
+			return {
+				url: {type: String, value: "http://www.karontek.com", reflectToAttribute: true},
+				title: {type: String, value: "Window", reflectToAttribute: true},
+				id: {type: String, value: "jswmWindow", reflectToAttribute: true}
+			};
+		}
+
+		constructor() 
+    	{
+        	super();
+
+        	this.lastX = 0;
+        	this.lastY = 0;
+        	this.dragging = false;
+        }
+		/*
+		connectedCallback()
+		{
+			super.connectedCallback();
+
+			window.addEventListener("mousemove", function(e)
+        	{
+        		console.info(e);
+        	});
+		}*/
+
+		startDrag(e)
+		{
+			e = e || window.event;
+			this.lastX = e.clientX;
+    		this.lastY = e.clientY;
+    		
+    		this.dragging = true;
+    		//document.onmouseup = this.stopDrag;
+    		//document.onmousemove = this.doDrag;
+		}
+
+		stopDrag(e)
+		{
+			console.info("stopDrag");
+			this.dragging = false;
+			//document.onmouseup = null;
+			//document.onmousemove = null;
+		}
+
+		doDrag(e)
+		{
+			if (!this.dragging)
+				return;
+
+			e = e || window.event;
+		    let incX = this.lastX - e.clientX;
+		    let incY = this.lastY - e.clientY;
+		    this.lastX = e.clientX;
+		    this.lastY = e.clientY;
+		    console.info("doDrag (%s,%s) (%s,%s)", this.lastX, this.lastY, incX, incY);
+
+		    this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";		    
+		}
+	}
+
+	customElements.define(JSWMwindow.is, JSWMwindow);
+	</script>
+</dom-module>
