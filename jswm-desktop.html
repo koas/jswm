@@ -151,8 +151,10 @@ wallpaperMode: "center" center the image on screen, no repeating.
 				<slot name="panelTop"></slot>
 			</div>
 			<div id="content" class$="{{wallpaperMode}}"
-				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})">
-				<slot></slot>
+				 style="background-color:{{backgroundColor}};background-image:url({{wallpaperUrl}})"
+				 on-mousedown="mouseDown" on-mouseup="mouseUp" 
+				 on-mousemove="mouseMove">
+				<slot id="mainSlot"></slot>
 				<div id="appMenuContainer" class="appMenuContainer">
 					<div class="appMenuContainerInner">
 						<div id="appMenuHeader" class="appMenuHeader">
@@ -198,6 +200,8 @@ wallpaperMode: "center" center the image on screen, no repeating.
 	        this.appData = null;
 	        this.rootCaption = "";
 	        this.folderStack = [];
+	        this.mouseWindow = "";
+	        this.windowsList = [];
 	    }
 
 		connectedCallback()
@@ -206,7 +210,7 @@ wallpaperMode: "center" center the image on screen, no repeating.
 
 	        // Register the desktop in the main JSWM element (only if we are
 	        // inside one)
-	        if (this.parentElement.tagName.toLowerCase() == "jswm-main")
+	        if (this.parentElement.tagName == "JSWM-MAIN")
 	        	this.parentElement.registerActiveDesktop(this);
 	    }
 		
@@ -216,9 +220,15 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			this.rootCaption = rootCaption;
 
 			if (this.appMenuOpened)
+			{
+				this.$.appMenuHeader.style.display = "none";
+				this.$.appMenuContent.style.display = "none";
 				this.$.appMenuContainer.classList.remove("appMenuContainerOn");
+			}
 			else 
 			{
+				this.$.appMenuHeader.style.display = "flex";
+				this.$.appMenuContent.style.display = "flex";
 				this.buildAppMenu(0);
 				this.$.appMenuContainer.classList.add("appMenuContainerOn");
 			}
@@ -283,6 +293,7 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			let url = e.target.getAttribute("data-url");
 			if (url)
 			{
+				let caption = e.target.getAttribute("data-caption");
 				this.openApp(url, caption);
 				return;
 			}
@@ -297,7 +308,67 @@ wallpaperMode: "center" center the image on screen, no repeating.
 
 		openApp(url, caption)
 		{
+			let w = document.createElement("jswm-window");
+			w.setAttribute("url", url);
+			w.setAttribute("title", caption);
+			w.setAttribute("id", "window" + Math.floor(Math.random() * 9999999));
+			this.appendChild(w);
 
+			this.toggleAppMenu();
+		}
+
+		mouseDown(e)
+		{
+			// If mouse is down over a window get the window and send
+			// mouse movements to that window
+			if (e.target.tagName == "JSWM-WINDOW")
+			{
+				for (let x = 0; x < this.windowsList.length; ++x)
+				{
+					if (this.windowsList[x].id == e.target.id)
+						this.mouseWindow = this.windowsList[x];
+				}
+
+				if (this.mouseWindow)
+				{
+					e = e || window.event;
+					this.mouseWindow.mouseDown(e.clientX, e.clientY);
+				}
+			}
+		}
+
+		mouseUp()
+		{
+			if (this.mouseWindow)
+				this.mouseWindow.mouseUp();
+			
+			this.mouseWindow = null;
+		}
+
+		mouseMove(e)
+		{
+			if (this.mouseWindow)
+			{
+				e = e || window.event;
+				this.mouseWindow.mouseMove(e.clientX, e.clientY);
+			}
+		}
+
+		registerWindow(window)
+		{
+			this.windowsList.push(window);
+		}
+
+		removeWindow(window)
+		{
+			for (let x = 0; x < this.windowsList.length; ++x)
+			{
+				if (this.windowsList[x].id == window.id)
+				{
+					 this.windowsList.splice(x, 1);
+					 break;
+				}
+			}
 		}
 	}
 

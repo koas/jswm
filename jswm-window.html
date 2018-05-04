@@ -20,7 +20,6 @@ title: caption for the window
 		.main {
 			width: 300px;
 			height: 300px;
-			background: bisque;
 			position: absolute;
 			left: 580px;
 			top: 70px;
@@ -31,46 +30,52 @@ title: caption for the window
 			"nw n ne"
 			"w content e"
 			"sw s se";
+			box-shadow: 0 25px 25px 0 rgba(0, 0, 0, 0.5), 0 0 25px 5px rgba(0, 0, 0, 0.25);
+			border-radius: 6px;
 		}
 		.nw {
 			grid-area: nw;
-			background: red;
 			cursor: nw-resize;
+			background-color: #fff;
+			border-top-left-radius: 100%;
 		}
 		.ne {
 			grid-area: ne;
-			background: green;
 			cursor: ne-resize;
+			background-color: #fff;
+			border-top-right-radius: 100%;
 		}
 		.n {
 			grid-area: n;
-			background: blue;
 			cursor: n-resize;
+			background-color: #fff;
 		}
 		.sw {
 			grid-area: sw;
-			background: red;
 			cursor: sw-resize;
+			background-color: #fff;
+			border-bottom-left-radius: 100%;
 		}
 		.se {
 			grid-area: se;
-			background: green;
 			cursor: se-resize;
+			background-color: #fff;
+			border-bottom-right-radius: 100%;
 		}
 		.s {
 			grid-area: s;
-			background: blue;
 			cursor: s-resize;
+			background-color: #fff;
 		}
 		.w {
 			grid-area: w;
-			background: pink;
 			cursor: w-resize;
+			background-color: #fff;
 		}
 		.e {
 			grid-area: e;
-			background: pink;
 			cursor: e-resize;
+			background-color: #fff;
 		}
 		.content {
 			grid-area: content;
@@ -89,10 +94,24 @@ title: caption for the window
 			-ms-user-select: none;
     		user-select: none;
 		}
-		.ifr {
+		.ifrCont {
 			flex-grow: 1;
+			position: relative;
+		}
+		.ifr {
+			width: 100%;
+			height: 100%;
 			background: black;
 			border: 0;
+		}
+		.ifrCover {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: transparent;
+			display: none;
 		}
 		.caption {
 			flex-grow: 1;
@@ -108,21 +127,24 @@ title: caption for the window
 		}
 		</style>
 		<div id="main" class="main">
-			<div class="nw"></div>
-			<div class="ne"></div>
-			<div class="n"></div>
-			<div class="sw"></div>
-			<div class="se"></div>
-			<div class="s"></div>
-			<div class="e"></div>
-			<div class="w"></div>
+			<div class="nw" data-mouseOp="resizeNW" on-mousedown="setMouseOp"></div>
+			<div class="ne" data-mouseOp="resizeNE" on-mousedown="setMouseOp"></div>
+			<div class="n" data-mouseOp="resizeN" on-mousedown="setMouseOp"></div>
+			<div class="sw" data-mouseOp="resizeSW" on-mousedown="setMouseOp"></div>
+			<div class="se" data-mouseOp="resizeSE" on-mousedown="setMouseOp"></div>
+			<div class="s" data-mouseOp="resizeS" on-mousedown="setMouseOp"></div>
+			<div class="w" data-mouseOp="resizeW" on-mousedown="setMouseOp"></div>
+			<div class="e" data-mouseOp="resizeE" on-mousedown="setMouseOp"></div>
 			<div class="content">
-				<div class="title" on-mousedown="startDrag" 
-					 on-mouseup="stopDrag" on-mousemove="doDrag">
-					<div class="caption">{{title}}</div>
-					<div class="close"></div>
+				<div class="title">
+					<div class="caption" data-mouseOp="move" 
+						 on-mousedown="setMouseOp">{{title}}</div>
+					<div class="close" on-click="close"></div>
 				</div>
-				<iframe class="ifr" src="{{url}}"></iframe>
+				<div class="ifrCont">
+					<iframe class="ifr" src="{{url}}"></iframe>
+					<div id="ifrCover" class="ifrCover"></div>
+				</div>
 			</div>
 		</div>
 	</template>
@@ -139,7 +161,7 @@ title: caption for the window
 		static get properties()
 		{
 			return {
-				url: {type: String, value: "http://www.karontek.com", reflectToAttribute: true},
+				url: {type: String, value: "about:blank", reflectToAttribute: true},
 				title: {type: String, value: "Window", reflectToAttribute: true},
 				id: {type: String, value: "jswmWindow", reflectToAttribute: true}
 			};
@@ -149,54 +171,114 @@ title: caption for the window
     	{
         	super();
 
-        	this.lastX = 0;
-        	this.lastY = 0;
-        	this.dragging = false;
+        	this.startX = 0;
+        	this.startY = 0;
+        	this.mouseOp = "";
         }
-		/*
-		connectedCallback()
-		{
-			super.connectedCallback();
 
-			window.addEventListener("mousemove", function(e)
-        	{
-        		console.info(e);
-        	});
-		}*/
+        connectedCallback()
+        {
+        	super.connectedCallback();
 
-		startDrag(e)
+        	// Register the window in the parent desktop element (only if we are
+	        // inside one)
+	        if (this.parentElement.tagName == "JSWM-DESKTOP")
+	        	this.parentElement.registerWindow(this);
+        }
+		
+        close()
+        {
+        	// Notify the parent desktop element (if any)
+        	if (this.parentElement.tagName == "JSWM-DESKTOP")
+        		this.parentElement.removeWindow(this);
+
+        	// Destroy the window
+        	this.parentElement.removeChild(this);
+        }
+
+		setMouseOp(e)
 		{
-			e = e || window.event;
-			this.lastX = e.clientX;
-    		this.lastY = e.clientY;
-    		
-    		this.dragging = true;
-    		//document.onmouseup = this.stopDrag;
-    		//document.onmousemove = this.doDrag;
+			this.mouseOp = e.target.getAttribute("data-mouseOp");
 		}
 
-		stopDrag(e)
+		mouseDown(x, y)
 		{
-			console.info("stopDrag");
-			this.dragging = false;
-			//document.onmouseup = null;
-			//document.onmousemove = null;
-		}
+			this.startX = x;
+    		this.startY = y;
+    		this.$.ifrCover.style.display = "block";
+   		}
 
-		doDrag(e)
+   		mouseUp()
+   		{
+   			this.$.ifrCover.style.display = "none";
+   		}
+
+		mouseMove(x, y)
 		{
-			if (!this.dragging)
-				return;
+			let incX = this.startX - x;
+		    let incY = this.startY - y;
+		    this.startX = x;
+		    this.startY = y;
 
-			e = e || window.event;
-		    let incX = this.lastX - e.clientX;
-		    let incY = this.lastY - e.clientY;
-		    this.lastX = e.clientX;
-		    this.lastY = e.clientY;
-		    console.info("doDrag (%s,%s) (%s,%s)", this.lastX, this.lastY, incX, incY);
+		    // Are we moving or resizing?
+		    switch (this.mouseOp)
+		    {
+		    	// Moving
+		    	case "move":
+		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    	break;
 
-		    this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
-		    this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";		    
+		    	// Resizing east
+		    	case "resizeE":
+		    		this.$.main.style.width = (this.$.main.offsetWidth - incX) + "px";
+		    	break;
+
+		    	// Resizing west
+		    	case "resizeW":
+		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    		this.$.main.style.width = (this.$.main.offsetWidth + incX) + "px";
+		    	break;
+
+		    	// Resizing south
+		    	case "resizeS":
+		    		this.$.main.style.height = (this.$.main.offsetHeight - incY) + "px";
+		    	break;
+
+		    	// Resizing north
+		    	case "resizeN":
+		    		this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
+		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    	break;	
+
+		    	// Resizing south east
+		    	case "resizeSE":
+		    		this.$.main.style.width = (this.$.main.offsetWidth - incX) + "px";
+		    		this.$.main.style.height = (this.$.main.offsetHeight - incY) + "px";
+		    	break;
+
+		    	// Resizing south west
+		    	case "resizeSW":
+		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    		this.$.main.style.width = (this.$.main.offsetWidth + incX) + "px";
+		    		this.$.main.style.height = (this.$.main.offsetHeight - incY) + "px";
+		    	break;
+
+		    	// Resizing north west
+		    	case "resizeNW":
+		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    		this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
+		    		this.$.main.style.width = (this.$.main.offsetWidth + incX) + "px";
+		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    	break;
+
+		    	// Resizing north east
+		    	case "resizeNE":
+		    		this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
+		    		this.$.main.style.width = (this.$.main.offsetWidth - incX) + "px";
+		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    	break;
+		    }
 		}
 	}
 
