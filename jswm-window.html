@@ -10,6 +10,10 @@ Properties:
 
 url: URL for the iframe
 title: caption for the window
+width: initial window width in pixels
+height: initial window height in pixels
+left: initial left position in pixels
+top: initial top position in pixels
 
 -->
 
@@ -18,11 +22,15 @@ title: caption for the window
 	<template>
 		<style>
 		.main {
-			width: 300px;
-			height: 300px;
+			--windowWidth: 0px;
+			--windowHeight: 0px;
+			--windowLeft: 0px;
+			--windowTop: 0px;
+			width: var(--windowWidth);
+			height: var(--windowHeight);
 			position: absolute;
-			left: 580px;
-			top: 70px;
+			left: var(--windowLeft);
+			top: var(--windowTop); 
 			display: grid;
 			grid-template-columns: 6px auto 6px;
 			grid-template-rows: 6px auto 6px;
@@ -82,6 +90,7 @@ title: caption for the window
 			display: flex;
 			background: #fff;
 			flex-direction: column;
+			overflow: hidden;
 		}
 		.title {
 			cursor: move;
@@ -118,12 +127,32 @@ title: caption for the window
 			font-family: 'Raleway', sans-serif;
 			font-weight: 100;
 			font-size: 20px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 		.close {
 			width: 16px;
 			height: 16px;
+			min-width: 16px;
 			cursor: pointer;
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoUlEQVQ4jZ3SSwqDMBAGYO+ReLWAMJCJOoW4CJg5kiBdlLYre7UuSrHB1Dxmlc3/MY80mvgK4GRTWF0/tTjw+nmM/lmCdP3UGuK7Qit2LRM5hIOWEsjf8LcAnNTEjxiSDJ8h2eEYUhwOkJFfhvxWHN7b9pu5VAC/bQM4WTRCbOZs5GxhSSRn2wqtMMS36C/MnfOA1Nw5QHDgtebOCq3QNC9vVkWLrEbgQiEAAAAASUVORK5CYII=);
+		}
+		.maximize {
+			width: 16px;
+			height: 16px;
+			min-width: 16px;
+			cursor: pointer;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVQ4jWPIyK2+k5lTvYI8XHWLITOnegUDmSAzp3rFqAGjBowaQDUDsqvuZuRUryEPV90GAInCdxSs9GJNAAAAAElFTkSuQmCC);
+			margin-right: 16px;
+		}
+		.minimize {
+			width: 16px;
+			height: 16px;
+			min-width: 16px;
+			cursor: pointer;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVQ4jWNgGPogMb1Yi1y9qdnl2gzpuVXz07Iq3EjVnJ5d6ZWZXb2AIS0tjTUzp2ppRk6FA/Gaq5wzc6qWpqWlsTIwMDAweHp6smfmVK9KzSq3IqQ5JbPSNjOnelVoaCgbikRoaChnRnb1uvT0MhNcmtOyK80zsqvXOTgkcGBVEBqaxZOZU7kxPb1cH1NzqVFmTuXG2NhYbrxOTEsr58/IrtyKHDvJGSU6mbnVW/ySkngJ+BDqkuRCoczc6m0J6aWqaWnFGhnZlVsTEgoEiNIMA4mJuaLp2RUHM3Kq98fFZQuTpBkG0tIqNaLSS1XJ0jx0AAD6B0okJCi9VgAAAABJRU5ErkJggg==);
+			margin: 0 16px;
 		}
 		</style>
 		<div id="main" class="main">
@@ -139,6 +168,8 @@ title: caption for the window
 				<div class="title">
 					<div class="caption" data-mouseOp="move" 
 						 on-mousedown="setMouseOp">{{title}}</div>
+					<div class="minimize" on-click="minimize"></div>
+					<div class="maximize" on-click="maximize"></div>
 					<div class="close" on-click="close"></div>
 				</div>
 				<div class="ifrCont">
@@ -163,7 +194,11 @@ title: caption for the window
 			return {
 				url: {type: String, value: "about:blank", reflectToAttribute: true},
 				title: {type: String, value: "Window", reflectToAttribute: true},
-				id: {type: String, value: "jswmWindow", reflectToAttribute: true}
+				id: {type: String, value: "jswmWindow", reflectToAttribute: true},
+				width: {type: Number, value: 0, reflectToAttribute: true},
+				height: {type: Number, value: 0, reflectToAttribute: true},
+				left: {type: Number, value: 0, reflectToAttribute: true},
+				top: {type: Number, value: 0, reflectToAttribute: true}
 			};
 		}
 
@@ -174,6 +209,8 @@ title: caption for the window
         	this.startX = 0;
         	this.startY = 0;
         	this.mouseOp = "";
+        	this.lastGeometry = null;
+
         }
 
         connectedCallback()
@@ -184,6 +221,33 @@ title: caption for the window
 	        // inside one)
 	        if (this.parentElement.tagName == "JSWM-DESKTOP")
 	        	this.parentElement.registerWindow(this);
+
+	        // Set initial geometry. If any value is missing generate random
+	        let scrW = window.innerWidth || document.documentElement.clientWidth || 
+					   document.body.clientWidth;
+			let scrH = window.innerHeight || document.documentElement.clientHeight ||
+					   document.body.clientHeight;
+			let maxW = scrW * 0.9;
+			let minW = scrW * 0.5;
+			let maxH = scrH * 0.9;
+			let minH = scrH * 0.5;
+
+			let defW = Math.floor(Math.random() * (maxW - minW + 1) + minW);
+			let defH = Math.floor(Math.random() * (maxH - minH + 1) + minH);
+			let defX = Math.floor((scrW - defW) / 2);
+			let defY = Math.floor((scrH - defH) / 2);
+
+			this.width = this.width || defW;
+			this.height = this.height || defH;
+			this.left = this.left || defX;
+			this.top = this.top || defY;
+
+	        this.$.main.style.setProperty("--windowWidth", this.width + "px");
+	        this.$.main.style.setProperty("--windowHeight", this.height + "px");
+	        this.$.main.style.setProperty("--windowLeft", this.left + "px");
+	        this.$.main.style.setProperty("--windowTop", this.top + "px");
+
+	        console.info("Initial geometry %sx%s at %s,%s", this.width, this.height, this.left, this.top);
         }
 		
         close()
@@ -194,6 +258,36 @@ title: caption for the window
 
         	// Destroy the window
         	this.parentElement.removeChild(this);
+        }
+
+        maximize()
+        {
+        	// Are we maximized?
+        	if (this.lastGeometry)
+        	{
+        		// Yes, restore last geometry
+        		this.$.main.style.left = this.lastGeometry.left + "px";
+        		this.$.main.style.top = this.lastGeometry.top + "px";
+        		this.$.main.style.width = this.lastGeometry.width + "px";
+        		this.$.main.style.height = this.lastGeometry.height + "px";
+        		this.lastGeometry = null;
+        	}
+        	else
+        	{
+	        	// No, save current geometry...
+	        	this.lastGeometry = {
+	        		left: this.$.main.offsetLeft,
+	        		top: this.$.main.offsetTop,
+	        		width: this.$.main.offsetWidth,
+	        		height: this.$.main.offsetHeight
+	        	};
+
+	        	// ...and maximize
+	        	this.$.main.style.left = 0;
+	        	this.$.main.style.top = 0;
+	        	this.$.main.style.width = "100%";
+	        	this.$.main.style.height = "100%";
+	        }
         }
 
 		setMouseOp(e)
@@ -221,62 +315,102 @@ title: caption for the window
 		    this.startY = y;
 
 		    // Are we moving or resizing?
+		    let minW = 150;
+		    let minH = 150;
+		    let newW = 0;
+		    let newH = 0;
 		    switch (this.mouseOp)
 		    {
 		    	// Moving
 		    	case "move":
-		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
-		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		let newX = Math.max(this.$.main.offsetLeft - incX, 0);
+		    		let newY = Math.max(this.$.main.offsetTop - incY, 0);
+		    		
+		    		this.$.main.style.left = newX + "px";
+		    		this.$.main.style.top = newY + "px";
 		    	break;
 
 		    	// Resizing east
 		    	case "resizeE":
-		    		this.$.main.style.width = (this.$.main.offsetWidth - incX) + "px";
+		    		newW = Math.max(this.$.main.offsetWidth - incX, minW);
+		    		this.$.main.style.width = newW + "px";
 		    	break;
 
 		    	// Resizing west
 		    	case "resizeW":
-		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
-		    		this.$.main.style.width = (this.$.main.offsetWidth + incX) + "px";
+		    		newW = this.$.main.offsetWidth + incX;
+		    		if (newW > minW)
+		    		{
+		    			this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    			this.$.main.style.width = newW + "px";
+		    		}
 		    	break;
 
 		    	// Resizing south
 		    	case "resizeS":
-		    		this.$.main.style.height = (this.$.main.offsetHeight - incY) + "px";
+		    		newH = Math.max(this.$.main.offsetHeight - incY, minH);
+		    		this.$.main.style.height = newH + "px";
 		    	break;
 
 		    	// Resizing north
 		    	case "resizeN":
-		    		this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
-		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		newH = this.$.main.offsetHeight + incY;
+		    		if (newH > minH)
+		    		{
+		    			this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
+		    			this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		}
 		    	break;	
 
 		    	// Resizing south east
 		    	case "resizeSE":
-		    		this.$.main.style.width = (this.$.main.offsetWidth - incX) + "px";
-		    		this.$.main.style.height = (this.$.main.offsetHeight - incY) + "px";
+		    		newW = Math.max(this.$.main.offsetWidth - incX, minW);
+		    		newH = Math.max(this.$.main.offsetHeight - incY, minH);
+		    		this.$.main.style.width = newW + "px";
+		    		this.$.main.style.height = newH + "px";
 		    	break;
 
 		    	// Resizing south west
 		    	case "resizeSW":
-		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
-		    		this.$.main.style.width = (this.$.main.offsetWidth + incX) + "px";
-		    		this.$.main.style.height = (this.$.main.offsetHeight - incY) + "px";
+		    		newW = this.$.main.offsetWidth + incX;
+		    		if (newW > minW)
+		    		{
+		    			this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    			this.$.main.style.width = newW + "px";
+		    		}
+
+		    		newH = Math.max(this.$.main.offsetHeight - incY, minH);
+		    		this.$.main.style.height = newH + "px";
 		    	break;
 
 		    	// Resizing north west
 		    	case "resizeNW":
-		    		this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
-		    		this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
-		    		this.$.main.style.width = (this.$.main.offsetWidth + incX) + "px";
-		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		newW = this.$.main.offsetWidth + incX;
+		    		if (newW > minW)
+		    		{
+		    			this.$.main.style.left = (this.$.main.offsetLeft - incX) + "px";
+		    			this.$.main.style.width = newW + "px";
+		    		}
+
+		    		newH = this.$.main.offsetHeight + incY;
+		    		if (newH > minH)
+		    		{
+						this.$.main.style.height = newH + "px";
+		    			this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		}
 		    	break;
 
 		    	// Resizing north east
 		    	case "resizeNE":
-		    		this.$.main.style.height = (this.$.main.offsetHeight + incY) + "px";
-		    		this.$.main.style.width = (this.$.main.offsetWidth - incX) + "px";
-		    		this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		newW = Math.max(this.$.main.offsetWidth - incX, minW);
+		    		this.$.main.style.width = newW + "px";
+
+		    		newH = this.$.main.offsetHeight + incY;
+		    		if (newH > minH)
+		    		{
+		    			this.$.main.style.height = newH + "px";
+		    			this.$.main.style.top = (this.$.main.offsetTop - incY) + "px";
+		    		}
 		    	break;
 		    }
 		}
