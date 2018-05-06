@@ -43,25 +43,21 @@ class JSWmain extends Polymer.Element
 	        	console.error(e);
 	        }
         }
-    }
 
-    connectedCallback()
-    {
-        super.connectedCallback();
-        
+        // Listen to created desktop event
+        this.addEventListener("jswmDesktopCreated", (e) => 
+        {
+            this.activeDesktop = e.detail.desktop;
+        });
+
         // If user clicks on an icon with id appMenuicon we open the main
         // app menu
-        this.addEventListener("jswmIconClicked", function(e)
+        this.addEventListener("jswmIconClicked", (e) =>
         {
             if (e.detail.id == "appMenuIcon" && this.activeDesktop)
                 this.activeDesktop.toggleAppMenu(this.configData.apps,
                                                  this.configData.rootFolderCaption);
         });
-    }
-
-    registerActiveDesktop(element)
-    {
-        this.activeDesktop = element;
     }
 }
 

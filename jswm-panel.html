@@ -15,9 +15,10 @@ https://github.com/koas/jswm
 	<template>
 		<style>
 		#main {
-			background-color: #393939;
+			background: rgba(47,47,47,1);
 			display: flex;
 			height: 40px;
+			background: linear-gradient(to bottom, rgba(65,65,65,1) 0%, rgba(47,47,47,1) 100%);
 		}
 		#middleContent {
 			flex: 1;
@@ -29,7 +30,7 @@ https://github.com/koas/jswm
 				<slot name="leftContent"></slot>
 			</div>
 			<div id="middleContent">
-				<slot name="mainContent"></slot>
+				<slot name="middleContent"></slot>
 			</div>
 			<div>
 				<slot name="rightContent"></slot>

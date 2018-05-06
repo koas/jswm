@@ -13,8 +13,8 @@ title: caption for the image on mouse over.
 
 Events:
 
-jswmIconClicked: emitted when the icon is clicked. The detail object contains 
-the id of the icon.
+jswmIconClicked: emitted when the icon is clicked. The detail member of the
+event contains the id of the icon.
 
 -->
 
@@ -24,13 +24,14 @@ the id of the icon.
 	<template>
 		<style>
 		img {
-			max-height: 100%;
+			height: 100%;
 			cursor: pointer;
 			box-sizing: border-box;
 			padding: 2px;
+			display: inline;
 		}
 		</style>
-		<img on-click="clicked" title="{{title}}" src="{{url}}" id="{{id}}"/>		
+		<img on-click="clicked" title="{{title}}" src="{{url}}" id="{{id}}"/>
 	</template>
 
 	<script>
@@ -45,7 +46,7 @@ the id of the icon.
 		static get properties()
 		{
 			return {
-				url: {type: String, value: "https://www.polymer-project.org/images/logos/p-logo.png", reflectToAttribute: true},
+				url: {type: String, value: "", reflectToAttribute: true},
 				title: {type: String, value: "", reflectToAttribute: true},
 				id: {type: String, value: "jswmIcon", reflectToAttribute: true}
 			};

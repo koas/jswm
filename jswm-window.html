@@ -15,6 +15,13 @@ height: initial window height in pixels
 left: initial left position in pixels
 top: initial top position in pixels
 
+Events:
+
+jswmWindowCreated: emitted when the window is created so other components can 
+update themselves. The detail event member contains a reference to the window.
+
+jswmWindowDestroyed: emitted when the window is destroyed so other components 
+can update themselves. The detail event member contains a reference to the window.
 -->
 
 <dom-module id="jswm-window">
@@ -39,7 +46,6 @@ top: initial top position in pixels
 			"w content e"
 			"sw s se";
 			box-shadow: 0 25px 25px 0 rgba(0, 0, 0, 0.5), 0 0 25px 5px rgba(0, 0, 0, 0.25);
-			border-radius: 6px;
 		}
 		.nw {
 			grid-area: nw;
@@ -154,20 +160,26 @@ top: initial top position in pixels
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVQ4jWNgGPogMb1Yi1y9qdnl2gzpuVXz07Iq3EjVnJ5d6ZWZXb2AIS0tjTUzp2ppRk6FA/Gaq5wzc6qWpqWlsTIwMDAweHp6smfmVK9KzSq3IqQ5JbPSNjOnelVoaCgbikRoaChnRnb1uvT0MhNcmtOyK80zsqvXOTgkcGBVEBqaxZOZU7kxPb1cH1NzqVFmTuXG2NhYbrxOTEsr58/IrtyKHDvJGSU6mbnVW/ySkngJ+BDqkuRCoczc6m0J6aWqaWnFGhnZlVsTEgoEiNIMA4mJuaLp2RUHM3Kq98fFZQuTpBkG0tIqNaLSS1XJ0jx0AAD6B0okJCi9VgAAAABJRU5ErkJggg==);
 			margin: 0 16px;
 		}
+		.no-radius {
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
+		}
 		</style>
 		<div id="main" class="main">
-			<div class="nw" data-mouseOp="resizeNW" on-mousedown="setMouseOp"></div>
-			<div class="ne" data-mouseOp="resizeNE" on-mousedown="setMouseOp"></div>
+			<div id="nw" class="nw" data-mouseOp="resizeNW" on-mousedown="setMouseOp"></div>
+			<div id="ne" class="ne" data-mouseOp="resizeNE" on-mousedown="setMouseOp"></div>
 			<div class="n" data-mouseOp="resizeN" on-mousedown="setMouseOp"></div>
-			<div class="sw" data-mouseOp="resizeSW" on-mousedown="setMouseOp"></div>
-			<div class="se" data-mouseOp="resizeSE" on-mousedown="setMouseOp"></div>
+			<div id="sw" class="sw" data-mouseOp="resizeSW" on-mousedown="setMouseOp"></div>
+			<div id="se" class="se" data-mouseOp="resizeSE" on-mousedown="setMouseOp"></div>
 			<div class="s" data-mouseOp="resizeS" on-mousedown="setMouseOp"></div>
 			<div class="w" data-mouseOp="resizeW" on-mousedown="setMouseOp"></div>
 			<div class="e" data-mouseOp="resizeE" on-mousedown="setMouseOp"></div>
 			<div class="content">
 				<div class="title">
 					<div class="caption" data-mouseOp="move" 
-						 on-mousedown="setMouseOp">{{title}}</div>
+						 on-mousedown="setMouseOp" on-dblclick="maximize">{{title}}</div>
 					<div class="minimize" on-click="minimize"></div>
 					<div class="maximize" on-click="maximize"></div>
 					<div class="close" on-click="close"></div>
@@ -217,10 +229,15 @@ top: initial top position in pixels
         {
         	super.connectedCallback();
 
-        	// Register the window in the parent desktop element (only if we are
-	        // inside one)
-	        if (this.parentElement.tagName == "JSWM-DESKTOP")
-	        	this.parentElement.registerWindow(this);
+        	// Emit the created window event
+        	console.info("Emitiendo evento de ventana creada");
+	        let detail = {wnd: this};
+        	let event = new CustomEvent("jswmWindowCreated", {
+        		detail: detail,
+        		bubbles: true,
+        		composed: true
+        	});
+        	this.dispatchEvent(event);
 
 	        // Set initial geometry. If any value is missing generate random
 	        let scrW = window.innerWidth || document.documentElement.clientWidth || 
@@ -246,15 +263,18 @@ top: initial top position in pixels
 	        this.$.main.style.setProperty("--windowHeight", this.height + "px");
 	        this.$.main.style.setProperty("--windowLeft", this.left + "px");
 	        this.$.main.style.setProperty("--windowTop", this.top + "px");
-
-	        console.info("Initial geometry %sx%s at %s,%s", this.width, this.height, this.left, this.top);
         }
 		
         close()
         {
-        	// Notify the parent desktop element (if any)
-        	if (this.parentElement.tagName == "JSWM-DESKTOP")
-        		this.parentElement.removeWindow(this);
+        	// Emit the destroyed window event
+	        let detail = {wnd: this};
+        	let event = new CustomEvent("jswmWindowDestroyed", {
+        		detail: detail,
+        		bubbles: true,
+        		composed: true
+        	});
+        	this.dispatchEvent(event);
 
         	// Destroy the window
         	this.parentElement.removeChild(this);
@@ -271,6 +291,11 @@ top: initial top position in pixels
         		this.$.main.style.width = this.lastGeometry.width + "px";
         		this.$.main.style.height = this.lastGeometry.height + "px";
         		this.lastGeometry = null;
+
+        		this.$.nw.classList.remove("no-radius");
+	        	this.$.ne.classList.remove("no-radius");
+	        	this.$.sw.classList.remove("no-radius");
+	        	this.$.se.classList.remove("no-radius");
         	}
         	else
         	{
@@ -287,6 +312,11 @@ top: initial top position in pixels
 	        	this.$.main.style.top = 0;
 	        	this.$.main.style.width = "100%";
 	        	this.$.main.style.height = "100%";
+
+	        	this.$.nw.classList.add("no-radius");
+	        	this.$.ne.classList.add("no-radius");
+	        	this.$.sw.classList.add("no-radius");
+	        	this.$.se.classList.add("no-radius");
 	        }
         }
 

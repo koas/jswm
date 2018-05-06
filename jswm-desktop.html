@@ -18,6 +18,11 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			   it has to stretch the image or cut a little bit off one of the 
 			   edges. This is the default value.
 
+Events:
+
+jswmDesktopCreated: emitted when the desktop is created so other components can 
+update themselves. The detail event member contains a reference to the desktop.
+
 -->
 
 
@@ -71,6 +76,7 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			align-items: center;
 			transition-property: opacity height;
 			transition-duration: 0.25s;
+			overflow: hidden;
 		}
 		.appMenuContainerOn {
 			height: 100%;
@@ -203,16 +209,36 @@ wallpaperMode: "center" center the image on screen, no repeating.
 	        this.folderStack = [];
 	        this.mouseWindow = "";
 	        this.windowsList = [];
-	    }
 
-		connectedCallback()
-	    {
-	        super.connectedCallback();
+	        // Listen to created window event
+	        this.addEventListener("jswmWindowCreated", (e) => 
+	        {
+	        	// Add window to list
+	        	this.windowsList.push(e.detail.wnd);
+	        });
 
-	        // Register the desktop in the main JSWM element (only if we are
-	        // inside one)
-	        if (this.parentElement.tagName == "JSWM-MAIN")
-	        	this.parentElement.registerActiveDesktop(this);
+	        // Listen to destroyed window event
+	        this.addEventListener("jswmWindowDestroyed", (e) => 
+	        {
+	        	// Remove window from list
+	        	for (let x = 0; x < this.windowsList.length; ++x)
+				{
+					if (this.windowsList[x].id == e.detail.wnd.id)
+					{
+						 this.windowsList.splice(x, 1);
+						 break;
+					}
+				}
+	        });
+
+	        // Emit the desktop created event
+	        let detail = {desktop: this};
+        	let event = new CustomEvent("jswmDesktopCreated", {
+        		detail: detail,
+        		bubbles: true,
+        		composed: true
+        	});
+        	this.dispatchEvent(event);
 	    }
 		
 		toggleAppMenu(appData, rootCaption)
@@ -309,12 +335,14 @@ wallpaperMode: "center" center the image on screen, no repeating.
 
 		openApp(url, caption)
 		{
+			// Create the app window
 			let w = document.createElement("jswm-window");
 			w.setAttribute("url", url);
 			w.setAttribute("title", caption);
 			w.setAttribute("id", "window" + Math.floor(Math.random() * 9999999));
 			this.appendChild(w);
 
+			// Close the app menu
 			this.toggleAppMenu();
 		}
 
@@ -352,23 +380,6 @@ wallpaperMode: "center" center the image on screen, no repeating.
 			{
 				e = e || window.event;
 				this.mouseWindow.mouseMove(e.clientX, e.clientY);
-			}
-		}
-
-		registerWindow(window)
-		{
-			this.windowsList.push(window);
-		}
-
-		removeWindow(window)
-		{
-			for (let x = 0; x < this.windowsList.length; ++x)
-			{
-				if (this.windowsList[x].id == window.id)
-				{
-					 this.windowsList.splice(x, 1);
-					 break;
-				}
 			}
 		}
 	}

@@ -1,0 +1,91 @@
+<!--
+JSWM App list
+
+This component is a list of open windows, it must be created inside a panel.
+
+Author: Koas (alvaro.calleja@gmail.com)
+https://github.com/koas/jswm
+
+Events:
+
+jswmAppTabClicked: emitted when a tab is clicked. The detail member of the
+event contains the id of the window.
+-->
+
+
+<dom-module id="jswm-app-list">
+	
+	<template>
+		<style>
+		nav {
+			display: flex;
+			height: 100%;
+			flex-wrap: wrap;
+		}
+		button {
+			border: 0;
+			height: 100%;
+			background: rgba(81,81,81,1);
+			border-radius: 6px;
+			margin: 0 5px;
+			background: linear-gradient(to bottom, rgba(81,81,81,1) 0%, rgba(51,51,51,1) 100%);
+			border: 1px solid #464646;
+			color: #fff;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+    		user-select: none;
+    		cursor: pointer;
+		}
+		.active {
+			background: rgba(137,137,137,1);
+			background: linear-gradient(to bottom, rgba(137,137,137,1) 0%, rgba(63,63,63,1) 100%);
+		}
+		</style>
+		<nav id="list">
+		</nav>
+	</template>
+
+	<script>
+	/*jshint esversion: 6 */
+	/* jshint -W097 */
+	"use strict";
+	
+	class JSWMappList extends Polymer.Element 
+	{
+		static get is() {return "jswm-app-list";}
+
+		constructor()
+		{
+			super();
+
+			// Listen to created window event
+	        document.addEventListener("jswmWindowCreated", (e) => 
+	        {
+	        	let wnd = e.detail.wnd;
+
+	        	// Create and add an app button  to the list
+	        	let b = document.createElement("button");
+				b.innerHTML = wnd.title;
+				b.setAttribute("data-windowId", wnd.id);
+				this.$.list.appendChild(b);
+
+				this.setActiveWindow(wnd.id);
+	        });
+		}
+
+		setActiveWindow(windowId)
+		{
+			let buttons = this.getElementsByTagName("button");
+			for (let x = 0; x < buttons.length; ++x)
+			{
+    			if (buttons[x].getAttribute("data-windowId") == windowId)
+    				buttons[x].classList.add("active");
+    			else buttons[x].classList.remove("active");
+			}
+		}
+	}
+
+	customElements.define(JSWMappList.is, JSWMappList);
+	</script>
+</dom-module>
