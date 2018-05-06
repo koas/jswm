@@ -223,13 +223,19 @@ update themselves. The detail event member contains a reference to the desktop.
 	        	// Remove window from list
 	        	for (let x = 0; x < this.windowsList.length; ++x)
 				{
-					if (this.windowsList[x].id == e.detail.wnd.id)
+					if (this.windowsList[x].id == e.detail.windowId)
 					{
 						 this.windowsList.splice(x, 1);
 						 break;
 					}
 				}
 	        });
+
+			// Listen to new window zIndex event
+	        this.addEventListener("jswmNewMaxWindowZIndex", (e) => 
+	        {
+	        	this.$.appMenuContainer.style.zIndex = ++e.detail.newMaxZIndex;
+	        });	        
 
 	        // Emit the desktop created event
 	        let detail = {desktop: this};
@@ -304,14 +310,14 @@ update themselves. The detail event member contains a reference to the desktop.
 			for (let x = 0; x < items.length; ++x)
 			{
 				let i = items[x];
-				let f1 = document.createElement("div");
-				f1.classList.add("appMenuItem");
-				f1.innerHTML = i.caption;
-				f1.setAttribute("data-id", i.id);
-				f1.setAttribute("data-url", i.url);
-				f1.setAttribute("data-caption", i.caption);
-				f1.addEventListener("click", this.appMenuItemClicked.bind(this));
-				this.$.appMenuContent.appendChild(f1);
+				let f = document.createElement("div");
+				f.classList.add("appMenuItem");
+				f.innerHTML = i.caption;
+				f.setAttribute("data-id", i.id);
+				f.setAttribute("data-url", i.url);
+				f.setAttribute("data-caption", i.caption);
+				f.addEventListener("click", this.appMenuItemClicked.bind(this));
+				this.$.appMenuContent.appendChild(f);
 			}
 		}
 
@@ -339,11 +345,15 @@ update themselves. The detail event member contains a reference to the desktop.
 			let w = document.createElement("jswm-window");
 			w.setAttribute("url", url);
 			w.setAttribute("title", caption);
-			w.setAttribute("id", "window" + Math.floor(Math.random() * 9999999));
+			let windowId = "window" + Math.floor(Math.random() * 9999999);
+			w.setAttribute("id", windowId);
 			this.appendChild(w);
 
 			// Close the app menu
 			this.toggleAppMenu();
+
+			// Make the new window active
+			w.makeActive();
 		}
 
 		mouseDown(e)

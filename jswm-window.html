@@ -21,7 +21,17 @@ jswmWindowCreated: emitted when the window is created so other components can
 update themselves. The detail event member contains a reference to the window.
 
 jswmWindowDestroyed: emitted when the window is destroyed so other components 
-can update themselves. The detail event member contains a reference to the window.
+can update themselves. The detail event member contains the id of the
+destroyed window.
+
+jswmWindowActive: emitted when the window is clicked. The detail member of the
+event contains the id of the window that gets active.
+
+jswmNewMaxWindowZIndex: emitted when a window gets a new zIndex. This is used
+by the desktop element to set the app menu div to a zIndex higher than that
+value, thus preventing the app menu from being shown under a window. The detail
+member of the event contains the current window zIndex.
+
 -->
 
 <dom-module id="jswm-window">
@@ -167,7 +177,7 @@ can update themselves. The detail event member contains a reference to the windo
 			border-bottom-right-radius: 0;
 		}
 		</style>
-		<div id="main" class="main">
+		<div id="main" class="main" on-mousedown="makeActive">
 			<div id="nw" class="nw" data-mouseOp="resizeNW" on-mousedown="setMouseOp"></div>
 			<div id="ne" class="ne" data-mouseOp="resizeNE" on-mousedown="setMouseOp"></div>
 			<div class="n" data-mouseOp="resizeN" on-mousedown="setMouseOp"></div>
@@ -185,7 +195,7 @@ can update themselves. The detail event member contains a reference to the windo
 					<div class="close" on-click="close"></div>
 				</div>
 				<div class="ifrCont">
-					<iframe class="ifr" src="{{url}}"></iframe>
+					<iframe id="ifr" class="ifr" src="{{url}}" on-load="iframeLoaded"></iframe>
 					<div id="ifrCover" class="ifrCover"></div>
 				</div>
 			</div>
@@ -222,7 +232,35 @@ can update themselves. The detail event member contains a reference to the windo
         	this.startY = 0;
         	this.mouseOp = "";
         	this.lastGeometry = null;
+        	this.zIndex = 1;
 
+        	// Listen to the active window event
+	        document.addEventListener("jswmWindowActive", (e) => 
+	        {
+	        	// If we are the active window get all other windows z-index and
+	        	// make our z-index higher
+	        	if (e.detail.windowId != this.id)
+	        		return;
+
+	        	let wnds = document.getElementsByTagName("jswm-window");
+	        	let maxIndex = 0;
+	        	for (let x = 0; x < wnds.length; ++x)
+	        		maxIndex = Math.max(wnds[x].zIndex, maxIndex);
+	        	
+	        	++maxIndex;
+
+	        	this.zIndex = maxIndex;
+	        	this.$.main.style.zIndex = maxIndex;
+
+	        	// Emit the event with the new max zIndex
+	        	let detail = {newMaxZIndex: maxIndex};
+	        	let event = new CustomEvent("jswmNewMaxWindowZIndex", {
+	        		detail: detail,
+	        		bubbles: true,
+	        		composed: true
+	        	});
+	        	this.dispatchEvent(event);
+	        });
         }
 
         connectedCallback()
@@ -230,7 +268,6 @@ can update themselves. The detail event member contains a reference to the windo
         	super.connectedCallback();
 
         	// Emit the created window event
-        	console.info("Emitiendo evento de ventana creada");
 	        let detail = {wnd: this};
         	let event = new CustomEvent("jswmWindowCreated", {
         		detail: detail,
@@ -265,10 +302,22 @@ can update themselves. The detail event member contains a reference to the windo
 	        this.$.main.style.setProperty("--windowTop", this.top + "px");
         }
 		
+		makeActive()
+		{
+			// Emit the window selected event
+			let detail = {windowId: this.id};
+        	let event = new CustomEvent("jswmWindowActive", {
+        		detail: detail,
+        		bubbles: true,
+        		composed: true
+        	});
+        	this.dispatchEvent(event);
+		}
+
         close()
         {
         	// Emit the destroyed window event
-	        let detail = {wnd: this};
+	        let detail = {windowId: this.id};
         	let event = new CustomEvent("jswmWindowDestroyed", {
         		detail: detail,
         		bubbles: true,
@@ -443,6 +492,15 @@ can update themselves. The detail event member contains a reference to the windo
 		    		}
 		    	break;
 		    }
+		}
+
+		iframeLoaded()
+		{
+			// When the iframe is loaded we must tell the iframe document the id
+			// of the window. The iframe document will use it to post a message
+			// (we listen to that message in jswm-main) when the body of the
+			// iframe is clicked, allowing JSWM to make the window active.
+			this.$.ifr.contentWindow.postMessage({windowId: this.id}, "*");
 		}
 	}
 

@@ -8,8 +8,9 @@ https://github.com/koas/jswm
 
 Events:
 
-jswmAppTabClicked: emitted when a tab is clicked. The detail member of the
-event contains the id of the window.
+jswmWindowActive: emitted when a tab is clicked. The detail member of the
+event contains the id of the window that gets active.
+
 -->
 
 
@@ -36,6 +37,10 @@ event contains the id of the window.
 			-ms-user-select: none;
     		user-select: none;
     		cursor: pointer;
+    		outline: 0;
+		}
+		button::-moz-focus-inner {
+			border: 0;
 		}
 		.active {
 			background: rgba(137,137,137,1);
@@ -68,14 +73,38 @@ event contains the id of the window.
 	        	let b = document.createElement("button");
 				b.innerHTML = wnd.title;
 				b.setAttribute("data-windowId", wnd.id);
+				b.addEventListener("click", this.clicked.bind(this));
+				b.addEventListener("auxclick", this.clicked.bind(this));
 				this.$.list.appendChild(b);
 
 				this.setActiveWindow(wnd.id);
 	        });
+
+	        // Listen to the active window event
+	        document.addEventListener("jswmWindowActive", (e) => 
+	        {
+	        	this.setActiveWindow(e.detail.windowId);
+	        });
+
+	        // Listen to destroyed window event
+	        document.addEventListener("jswmWindowDestroyed", (e) => 
+	        {
+	        	// Remove window button
+	        	let buttons = this.getElementsByTagName("button");
+				for (let x = 0; x < buttons.length; ++x)
+				{
+	    			if (buttons[x].getAttribute("data-windowId") == e.detail.windowId)
+	    			{
+	    				buttons[x].parentNode.removeChild(buttons[x]);
+	    				break;
+	    			}
+		        }
+		    });
 		}
 
 		setActiveWindow(windowId)
 		{
+			// Apply active class to selected button
 			let buttons = this.getElementsByTagName("button");
 			for (let x = 0; x < buttons.length; ++x)
 			{
@@ -83,6 +112,28 @@ event contains the id of the window.
     				buttons[x].classList.add("active");
     			else buttons[x].classList.remove("active");
 			}
+		}
+
+		clicked(e)
+		{
+			let windowId = e.target.getAttribute("data-windowId");
+
+			// If clicked with middle button, close window
+			if (e.button == 1)
+				document.getElementById(windowId).close();
+
+			// If clicked with left button, activate window
+			if (e.button == 0)
+			{
+				// Emit the window selected event
+				let detail = {windowId: windowId};
+	        	let event = new CustomEvent("jswmWindowActive", {
+	        		detail: detail,
+	        		bubbles: true,
+	        		composed: true
+	        	});
+	        	this.dispatchEvent(event);
+	        }
 		}
 	}
 

@@ -50,6 +50,17 @@ class JSWmain extends Polymer.Element
             this.activeDesktop = e.detail.desktop;
         });
 
+        // Listen to messages sent from iframes. These messages are the way the
+        // window iframes communicate with JSWM.
+        window.addEventListener("message", (e) =>
+        {
+            let windowId = e.data.windowId;
+            
+            let wnd = document.getElementById(windowId);
+            if (wnd)
+                wnd.makeActive();
+        });
+
         // If user clicks on an icon with id appMenuicon we open the main
         // app menu
         this.addEventListener("jswmIconClicked", (e) =>
