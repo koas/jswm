@@ -24,6 +24,9 @@ jswmWindowDestroyed: emitted when the window is destroyed so other components
 can update themselves. The detail event member contains the id of the
 destroyed window.
 
+jswmWindowMinimized: emitted when the window is minimized. The detail event 
+member contains the id of the destroyed window.
+
 jswmWindowActive: emitted when the window is clicked. The detail member of the
 event contains the id of the window that gets active.
 
@@ -260,6 +263,9 @@ member of the event contains the current window zIndex.
 	        		composed: true
 	        	});
 	        	this.dispatchEvent(event);
+
+	        	// Show the window (it could be in minimized state)
+        		this.$.main.style.display = "grid";
 	        });
         }
 
@@ -327,6 +333,21 @@ member of the event contains the current window zIndex.
 
         	// Destroy the window
         	this.parentElement.removeChild(this);
+        }
+
+        minimize()
+        {	
+        	// Emit the minimized window event
+	        let detail = {windowId: this.id};
+        	let event = new CustomEvent("jswmWindowMinimized", {
+        		detail: detail,
+        		bubbles: true,
+        		composed: true
+        	});
+        	this.dispatchEvent(event);
+        	
+        	// Hide the window
+        	this.$.main.style.display = "none";
         }
 
         maximize()
