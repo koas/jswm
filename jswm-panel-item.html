@@ -1,0 +1,57 @@
+<!--
+JSWM Panel item
+
+This component is used to display any item (text, image) inside a panel.
+
+Author: Koas (alvaro.calleja@gmail.com)
+https://github.com/koas/jswm
+
+Properties:
+
+Events:
+
+jswmPanelItemClicked: emitted when the item is clicked. The detail member of the
+event contains the id of the item.
+
+-->
+
+
+<script>
+/*jshint esversion: 6 */
+/* jshint -W097 */
+"use strict";
+
+class JSWMPanelItem extends Polymer.Element 
+{
+	static get is() {return "jswm-panel-item";}
+
+	static get properties()
+	{
+		return {
+			id: {type: String, 
+				 value: "jswmPanelItem"+ Math.floor(Math.random() * 9999999),
+				 reflectToAttribute: true}
+		};
+	}
+
+	constructor() 
+	{
+    	super();
+
+    	this.addEventListener('click', this.clicked);
+	}
+
+    clicked()
+    {
+    	let detail = {id: this.id};
+    	let event = new CustomEvent("jswmPanelItemClicked", {
+    		detail: detail,
+    		bubbles: true,
+    		composed: true
+    	});
+    	this.dispatchEvent(event);
+    }
+}
+
+customElements.define(JSWMPanelItem.is, JSWMPanelItem);
+</script>

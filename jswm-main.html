@@ -63,7 +63,7 @@ class JSWmain extends Polymer.Element
 
         // If user clicks on an icon with id appMenuicon we open the main
         // app menu
-        this.addEventListener("jswmIconClicked", (e) =>
+        this.addEventListener("jswmPanelItemClicked", (e) =>
         {
             if (e.detail.id == "appMenuIcon" && this.activeDesktop)
                 this.activeDesktop.toggleAppMenu(this.configData.apps,

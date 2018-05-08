@@ -38,6 +38,10 @@ event contains the id of the window that gets active.
     		user-select: none;
     		cursor: pointer;
     		outline: 0;
+    		max-width: 120px;
+    		white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 		button::-moz-focus-inner {
 			border: 0;
@@ -73,6 +77,7 @@ event contains the id of the window that gets active.
 	        	let b = document.createElement("button");
 				b.innerHTML = wnd.title;
 				b.setAttribute("data-windowId", wnd.id);
+				b.setAttribute("title", wnd.title);
 				b.addEventListener("click", this.clicked.bind(this));
 				b.addEventListener("auxclick", this.clicked.bind(this));
 				this.$.list.appendChild(b);
