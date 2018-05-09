@@ -57,7 +57,8 @@ event contains the id of the window that gets active.
 
 	<script>
 	/*jshint esversion: 6 */
-	/* jshint -W097 */
+	/*jshint -W097 */
+	/*jshint -W117 */
 	"use strict";
 	
 	class JSWMappList extends Polymer.Element 
@@ -71,6 +72,7 @@ event contains the id of the window that gets active.
 			// Listen to created window event
 	        document.addEventListener("jswmWindowCreated", (e) => 
 	        {
+	        	jswmDebug("JSWMappList jswmWindowCreated event listener");
 	        	let wnd = e.detail.wnd;
 
 	        	// Create and add an app button  to the list
@@ -121,13 +123,21 @@ event contains the id of the window that gets active.
 
 		setActiveWindow(windowId)
 		{
+			jswmDebug(`JSWMappList::setActiveWindow(${windowId})`);
 			// Apply active class to selected button
-			let buttons = this.getElementsByTagName("button");
+			let buttons = this.$.list.getElementsByTagName("button");
 			for (let x = 0; x < buttons.length; ++x)
 			{
     			if (buttons[x].getAttribute("data-windowId") == windowId)
+    			{
+    				jswmDebug(`JSQMappList::setActiveWindow adding class active to window id: ${buttons[x].id} caption: ${buttons[x].title}`);
     				buttons[x].classList.add("active");
-    			else buttons[x].classList.remove("active");
+    			}
+    			else
+    			{
+    				jswmDebug(`JSQMappList::setActiveWindow removing class active to window id: ${buttons[x].id} caption: ${buttons[x].title}`);
+    				buttons[x].classList.remove("active");
+    			}
 			}
 		}
 
@@ -136,18 +146,16 @@ event contains the id of the window that gets active.
 			let windowId = e.target.getAttribute("data-windowId");
 
 			// If clicked with middle button, close window
-			if (e.button == 1)
+			if (e.button === 1)
 				document.getElementById(windowId).close();
 
 			// If clicked with left button, activate window
-			if (e.button == 0)
+			if (e.button === 0)
 			{
 				// Emit the window selected event
-				let detail = {windowId: windowId};
-	        	let event = new CustomEvent("jswmWindowActive", {
-	        		detail: detail,
-	        		bubbles: true,
-	        		composed: true
+	        	let event = new CustomEvent("jswmWindowActive",
+	        	{
+	        		detail: {windowId: windowId}, bubbles: true, composed: true
 	        	});
 	        	this.dispatchEvent(event);
 	        }

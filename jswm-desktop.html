@@ -109,10 +109,11 @@ update themselves. The detail event member contains a reference to the desktop.
 			margin: 0 20px 0 10px;
 			cursor: pointer;
 		}
-		#appMenuHeaderFolderName {
-			font-family: 'Raleway', sans-serif;
-			font-weight: 100;
-			font-size: 30px;
+		#appMenuHeaderFolderName {			
+			font-size: var(--jswmDesktopAppMenuHeaderFontSize, 30px);
+			font-family: var(--jswmDesktopAppMenuHeaderFontFamily, Arial);
+			font-weight: var(--jswmDesktopAppMenuHeaderFontWeight, 100);
+			color: var(--jswmDesktopAppMenuHeaderFontColor, #000);
 		}
 		.appMenuHeaderClose {
 			width: 32px;
@@ -139,7 +140,6 @@ update themselves. The detail event member contains a reference to the desktop.
 			text-align: center;
 			line-height: 25px;
 			font-size: 15px;
-			font-family: 'Roboto', sans-serif;
 			box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     		transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     		border-radius: 4px;
@@ -183,7 +183,8 @@ update themselves. The detail event member contains a reference to the desktop.
 
 	<script>
 	/*jshint esversion: 6 */
-	/* jshint -W097 */
+	/*jshint -W097 */
+	/*jshint -W117 */
 	"use strict";
 
 	class JSWMdesktop extends Polymer.Element 
@@ -193,6 +194,9 @@ update themselves. The detail event member contains a reference to the desktop.
 		static get properties()
 		{
 			return {
+				id: {type: String, 
+					 value: "jswmDesktop_"+ Math.floor(Math.random() * 9999999),
+				 reflectToAttribute: true},
 				backgroundColor: {type: String, value: "#115287", reflectToAttribute: true},
 				wallpaperUrl: {type: String, value: "", reflectToAttribute: true},
 				wallpaperMode: {type: String, value: "cover", reflectToAttribute: true}
@@ -215,6 +219,8 @@ update themselves. The detail event member contains a reference to the desktop.
 	        {
 	        	// Add window to list
 	        	this.windowsList.push(e.detail.wnd);
+	        	jswmDebug(`JSWMdesktop -> adding window to internal list (${e.detail.wnd.id}), current list is`);
+	        	jswmDebug(this.windowsList);
 	        });
 
 	        // Listen to destroyed window event
@@ -229,20 +235,25 @@ update themselves. The detail event member contains a reference to the desktop.
 						 break;
 					}
 				}
+
+				jswmDebug(`JSWMdesktop -> removing window from internal list (${e.detail.windowId}), current list is`);
+	        	jswmDebug(this.windowsList);
 	        });
 
 			// Listen to new window zIndex event
 	        this.addEventListener("jswmNewMaxWindowZIndex", (e) => 
 	        {
-	        	this.$.appMenuContainer.style.zIndex = ++e.detail.newMaxZIndex;
+	        	let zIndex = ++e.detail.newMaxZIndex;
+	        	this.$.appMenuContainer.style.zIndex = zIndex;
+
+	        	jswmDebug(`JSWMdesktop -> setting app menu div zIndex to ${zIndex}`);
 	        });	        
 
 	        // Emit the desktop created event
-	        let detail = {desktop: this};
-        	let event = new CustomEvent("jswmDesktopCreated", {
-        		detail: detail,
-        		bubbles: true,
-        		composed: true
+	        jswmDebug("JSWMdesktop -> emitting jswmDesktopCreated event");
+        	let event = new CustomEvent("jswmDesktopCreated",
+        	{
+        		detail: {desktop: this}, bubbles: true, composed: true
         	});
         	this.dispatchEvent(event);
 	    }
@@ -254,12 +265,16 @@ update themselves. The detail event member contains a reference to the desktop.
 
 			if (this.appMenuOpened)
 			{
+				jswmDebug("JSWMdesktop -> closing app menu");
+
 				this.$.appMenuHeader.style.display = "none";
 				this.$.appMenuContent.style.display = "none";
 				this.$.appMenuContainer.classList.remove("appMenuContainerOn");
 			}
 			else 
 			{
+				jswmDebug("JSWMdesktop -> opening app menu");
+
 				this.$.appMenuHeader.style.display = "flex";
 				this.$.appMenuContent.style.display = "flex";
 				this.buildAppMenu(0);
@@ -327,6 +342,7 @@ update themselves. The detail event member contains a reference to the desktop.
 			if (url)
 			{
 				let caption = e.target.getAttribute("data-caption");
+				jswmDebug(`JSWMdesktop -> opening app ${caption} (${url})`);
 				this.openApp(url, caption);
 				return;
 			}
@@ -345,7 +361,7 @@ update themselves. The detail event member contains a reference to the desktop.
 			let w = document.createElement("jswm-window");
 			w.setAttribute("url", url);
 			w.setAttribute("title", caption);
-			let windowId = "window" + Math.floor(Math.random() * 9999999);
+			let windowId = "window_" + Math.floor(Math.random() * 9999999);
 			w.setAttribute("id", windowId);
 			this.appendChild(w);
 

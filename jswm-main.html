@@ -9,7 +9,8 @@ https://github.com/koas/jswm
 -->
 <script>
 /*jshint esversion: 6 */
-/* jshint -W097 */
+/*jshint -W097 */
+/*jshint -W117 */
 "use strict";
 
 class JSWmain extends Polymer.Element 
@@ -23,7 +24,7 @@ class JSWmain extends Polymer.Element
         this.activeDesktop = null;
 
         // Default values for config
-        this.configData = {apps: [], rootFolderCaption: "Home"};
+        this.configData = {apps: [], rootFolderCaption: "Home", debug: false};
         
         let configNode = this.querySelector("[type='text/jswm-config']");
         if (configNode)
@@ -39,15 +40,24 @@ class JSWmain extends Polymer.Element
 	        }
 	        catch(e)
 	        {
-	        	console.error("Error parsing jswm-main JSON config data.");
-	        	console.error(e);
+	        	alert("Error parsing jswm-main JSON config data.");
 	        }
         }
+
+        // Create debug function
+        window.jswmDebug = (msg)=>
+        {
+            if (this.configData.debug)
+                console.info(msg);
+        };
 
         // Listen to created desktop event
         this.addEventListener("jswmDesktopCreated", (e) => 
         {
             this.activeDesktop = e.detail.desktop;
+
+            jswmDebug("Changed active desktop. Current active desktop is: ");
+            jswmDebug(this.activeDesktop);
         });
 
         // Listen to messages sent from iframes. These messages are the way the
@@ -56,19 +66,34 @@ class JSWmain extends Polymer.Element
         {
             let windowId = e.data.windowId;
             
+            let dbg = `Received focus message from window iframe, window id ${windowId}`;
+
             let wnd = document.getElementById(windowId);
             if (wnd)
+            {
+                jswmDebug(dbg + ", calling makeActive method on window");
                 wnd.makeActive();
+            }
+            else jswmDebug(dbg + " but no window with that id found");
+
+            
         });
 
-        // If user clicks on an icon with id appMenuicon we open the main
-        // app menu
+        // Listen to panel item click events, if user clicks on an item with id
+        // "jswmAppMenuOpener" open mainapp menu
         this.addEventListener("jswmPanelItemClicked", (e) =>
         {
-            if (e.detail.id == "appMenuIcon" && this.activeDesktop)
+            jswmDebug(`JSWMmain -> jswmPanelItemClicked event listener, item id ${e.detail.id}`);
+
+            if (e.detail.id == "jswmAppMenuOpener" && this.activeDesktop)
+            {
                 this.activeDesktop.toggleAppMenu(this.configData.apps,
                                                  this.configData.rootFolderCaption);
+            }
         });
+
+        jswmDebug("JSWmain created. Config data:");
+        jswmDebug(this.configData);
     }
 }
 

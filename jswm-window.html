@@ -207,7 +207,8 @@ member of the event contains the current window zIndex.
 
 	<script>
 	/*jshint esversion: 6 */
-	/* jshint -W097 */
+	/*jshint -W097 */
+	/*jshint -W117 */
 	"use strict";
 	
 	class JSWMwindow extends Polymer.Element 
@@ -310,24 +311,22 @@ member of the event contains the current window zIndex.
 		
 		makeActive()
 		{
+			jswmDebug(`JSWMwindow::makeActive -> emitting jswmWindowActive event (window id: ${this.id} caption: ${this.title})`);
 			// Emit the window selected event
-			let detail = {windowId: this.id};
-        	let event = new CustomEvent("jswmWindowActive", {
-        		detail: detail,
-        		bubbles: true,
-        		composed: true
+        	let event = new CustomEvent("jswmWindowActive",
+        	{
+        		detail: {windowId: this.id}, bubbles: true, composed: true
         	});
         	this.dispatchEvent(event);
 		}
 
         close()
         {
+        	jswmDebug(`JSWMwindow::close -> emitting jswmWindowDestroyed event (window id: ${this.id} caption: ${this.title})`);
         	// Emit the destroyed window event
-	        let detail = {windowId: this.id};
-        	let event = new CustomEvent("jswmWindowDestroyed", {
-        		detail: detail,
-        		bubbles: true,
-        		composed: true
+        	let event = new CustomEvent("jswmWindowDestroyed", 
+        	{
+        		detail: {windowId: this.id}, bubbles: true, composed: true
         	});
         	this.dispatchEvent(event);
 
@@ -336,13 +335,12 @@ member of the event contains the current window zIndex.
         }
 
         minimize()
-        {	
+        {
+        	jswmDebug(`JSWMwindow::minimize -> emitting jswmWindowMinimized event (window id: ${this.id} caption: ${this.title})`);
         	// Emit the minimized window event
-	        let detail = {windowId: this.id};
-        	let event = new CustomEvent("jswmWindowMinimized", {
-        		detail: detail,
-        		bubbles: true,
-        		composed: true
+        	let event = new CustomEvent("jswmWindowMinimized",
+        	{
+        		detail: {windowId: this.id}, bubbles: true, composed: true
         	});
         	this.dispatchEvent(event);
         	
@@ -355,6 +353,8 @@ member of the event contains the current window zIndex.
         	// Are we maximized?
         	if (this.lastGeometry)
         	{
+        		jswmDebug(`JSWMwindow::maximize -> restoring geometry (window id: ${this.id} caption: ${this.title})`);
+
         		// Yes, restore last geometry
         		this.$.main.style.left = this.lastGeometry.left + "px";
         		this.$.main.style.top = this.lastGeometry.top + "px";
@@ -369,6 +369,8 @@ member of the event contains the current window zIndex.
         	}
         	else
         	{
+        		jswmDebug(`JSWMwindow::maximize -> maximizing (window id: ${this.id} caption: ${this.title})`);
+
 	        	// No, save current geometry...
 	        	this.lastGeometry = {
 	        		left: this.$.main.offsetLeft,
@@ -393,6 +395,7 @@ member of the event contains the current window zIndex.
 		setMouseOp(e)
 		{
 			this.mouseOp = e.target.getAttribute("data-mouseOp");
+			jswmDebug(`JSWMwindow -> set mouseOp to ${this.mouseOp} (window id: ${this.id} caption: ${this.title})`);
 		}
 
 		mouseDown(x, y)
@@ -521,6 +524,7 @@ member of the event contains the current window zIndex.
 			// of the window. The iframe document will use it to post a message
 			// (we listen to that message in jswm-main) when the body of the
 			// iframe is clicked, allowing JSWM to make the window active.
+			jswmDebug(`JSWMwindow::iframeLoaded -> sending window id to iframe (window id: ${this.id} caption: ${this.title})`);
 			this.$.ifr.contentWindow.postMessage({windowId: this.id}, "*");
 		}
 	}
