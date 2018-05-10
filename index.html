@@ -1,1 +1,53 @@
-testing
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSWM developer area</title>
+    <style type="text/css">
+    body {
+    	background:#000;
+    	--jswmDesktopAppMenuHeaderFontFamily: "Raleway";
+    	--jswmDesktopAppMenuItemFontFamily: "Roboto";
+		--jswmAppListItemFontFamily: "Roboto";
+		--jswmWindowFontFamily: "Raleway";
+    }
+	</style>
+</head>
+<body>
+	<jswm-main>
+		<jswm-desktop wallpaper-url="https://i.imgur.com/w439mEw.jpg">
+			<jswm-panel slot="panelTop">
+				<jswm-panel-item slot="leftContent" id="jswmAppMenuOpener">
+					<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC+UlEQVRYhe2WT2hUVxTGbwTRijs3QkNaikiFCha6KC2FCt1MoY0UBtwYZzG8TvPeO993RyLE986ZY1Ytbly60mWtFZpF0UVtQZddB6ySYkFKaV1IFfyD4utiMqBjZsyYxE3zwdm87577/e7lce8NYUOrUJbp3izTva88uF737aSdFOhjgT4m7WS97tt7PulvZrEEWfDZ8i9WHS7RJgV2U6BPADsF2CmBPhHYTYk2GUIIeV6UoFXL1C133/RSwa1W8TpQ/tCdSBdE/IOel2WzH4K6AFpF6nyz6eN5Xs6AVrVyfZfUecBu1Ov110YOdvdNImUO6h0Ru49YHEuSZHP/uCRJNiMWx0TsPqh3wPJn0Kpm08cBOyvQxZHDSd8n0F9BqyTqpelp3/Winulp3yVRL/W2PcbZj0YGSBLfRnZOgPZIoP+IFIdGhRcpDoF2C7RHoP29YoC07Z+S+gdolYidnpqa3TFqeE9TU7M7gM4Z0CqB3SWtNnBwY8Z3kp3vQKty2jXSP37Z4H5J2/bntGugVYCdbcz4zqf9sSwWLcBug/YQsXO8VqttWavwnmq12hbS5kB7CNjtPC+/DCGMBUAvdFetV8ije9Y6uF/k0T059Up3N/RCAOyyQB80mz6+3uE9NZs+LtAHgF0Oaeq7Qb0nUl58VQAi5UVQ76Wp7w4hhEAWXPpBbgh0kex8M2yChvtWsiCinUO0c1ks0XDfOqwH0b4G9DeBLoJWZbHE0/4YaXMS9bzA/gR1YeBE8AkRu7p00Py+VJWIXQV8YmAfdUHE/pKo50mbCyGMLTuQ1PlhACL6i8D+lbbt732L0T8R2N2c5U/DAED9cZC/IoAY/S3QKsQy9nu9yydNj7yxbgASbbJ7vvt7/d5XbX8ftCrL/PN1A0hFD4JWtVr+zvN9vg+0KhU9uAGwAbABsGoAgV5Pjvjb/UUW7e45YJ897/mB7qu4aC/XK9DrKwIQ6Xw74E2/6spZfv9CAMAn0lgcJrWxlpXG4vCwy+r/q/8Ai9STLt4wtuwAAAAASUVORK5CYII=" title="Applications"  
+								 style="cursor: pointer;"/>
+				</jswm-panel-item>
+				<jswm-app-list slot="middleContent"></jswm-app-list>
+			</jswm-panel>
+		</jswm-desktop>
+		<script type="text/jswm-config">
+		{
+	        "apps": 
+	        [
+	        	{"id":"1", "idParent":"0", "url":"http://localhost/index.php?n=1", "caption":"Aplicación con un nombre largo"},
+	        	{"id":"1", "idParent":"0", "url":"http://localhost/index.php?n=2", "caption":"App 2"},
+	        	{"id":"2", "idParent":"5", "url":"url2", "caption":"Aplicación carpeta 2"},
+	        	{"id":"3", "idParent":"6", "url":"url3", "caption":"Aplicación carpeta 3"},
+	        	{"id":"4", "idParent":"0", "url":"", "caption":"Carpeta 1"},
+	        	{"id":"5", "idParent":"0", "url":"", "caption":"Carpeta 2"},
+	        	{"id":"6", "idParent":"4", "url":"", "caption":"Carpeta 3"}
+	        ],
+	        "rootFolderCaption": "Inicio",
+	        "debug": false
+	    }
+		</script>
+	</jswm-main>
+
+	<link href="https://fonts.googleapis.com/css?family=Raleway:100|Roboto:400,700" rel="stylesheet">
+
+	<!--<script src="polymer/webcomponents-lite.js"></script>
+	<link rel="import" href="jswm.html"/>-->
+	<script src="https://s3-eu-west-1.amazonaws.com/jswm/polymer/webcomponents-lite.js"></script>
+	<link rel="import" href="https://s3-eu-west-1.amazonaws.com/jswm/jswm.html"/>
+</body>
+</html>
