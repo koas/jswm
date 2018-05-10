@@ -35,6 +35,25 @@ by the desktop element to set the app menu div to a zIndex higher than that
 value, thus preventing the app menu from being shown under a window. The detail
 member of the event contains the current window zIndex.
 
+CSS variables for styling:
+
+--jswmWindowBackgroundColor: window header background color. Default is #fff.
+
+--jswmWindowHeaderSeparatorColor: color of the line between window header and
+content. Default is #eee.
+
+--jswmWindowFontSize: window header font size. Default is 20px.
+
+--jswmWindowFontFamily: window header font family. Default is Arial.
+
+--jswmWindowFontWeight: window header font weight. Default is 100.
+
+--jswmWindowFontColor: window header font color. Default is #000.
+
+--jswmWindowButtonWidth: width of the window buttons. Default is 16px.
+
+--jswmWindowButtonHeight: height of the window buttons. Default is 16px.
+
 -->
 
 <dom-module id="jswm-window">
@@ -63,58 +82,58 @@ member of the event contains the current window zIndex.
 		.nw {
 			grid-area: nw;
 			cursor: nw-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 			border-top-left-radius: 100%;
 		}
 		.ne {
 			grid-area: ne;
 			cursor: ne-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 			border-top-right-radius: 100%;
 		}
 		.n {
 			grid-area: n;
 			cursor: n-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 		}
 		.sw {
 			grid-area: sw;
 			cursor: sw-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 			border-bottom-left-radius: 100%;
 		}
 		.se {
 			grid-area: se;
 			cursor: se-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 			border-bottom-right-radius: 100%;
 		}
 		.s {
 			grid-area: s;
 			cursor: s-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 		}
 		.w {
 			grid-area: w;
 			cursor: w-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 		}
 		.e {
 			grid-area: e;
 			cursor: e-resize;
-			background-color: #fff;
+			background-color: var(--jswmWindowBackgroundColor, #fff);
 		}
 		.content {
 			grid-area: content;
 			display: flex;
-			background: #fff;
+			background: var(--jswmWindowBackgroundColor, #fff);
 			flex-direction: column;
 			overflow: hidden;
 		}
 		.title {
 			cursor: move;
 			display: flex;
-			border-bottom: 1px solid #eee;
+			border-bottom: 1px solid var(--jswmWindowHeaderSeparatorColor, #eee);
 			padding: 5px;
 			align-items: center;
 			-moz-user-select: none;
@@ -143,32 +162,39 @@ member of the event contains the current window zIndex.
 		}
 		.caption {
 			flex-grow: 1;
-			font-family: 'Raleway', sans-serif;
-			font-weight: 100;
-			font-size: 20px;
+			font-family: var(--jswmWindowFontFamily, Arial);
+			font-weight: var(--jswmWindowFontWeight, 100);
+			font-size: var(--jswmWindowFontSize, 20px);
+			color: var(--jswmWindowFontColor, #000);
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 		.close {
-			width: 16px;
-			height: 16px;
-			min-width: 16px;
+			width: var(--jswmWindowButtonWidth, 16px);
+			height: var(--jswmWindowButtonHeight, 16px);
+			min-width: var(--jswmWindowButtonWidth, 16px);
+			background-position: center center;
+			background-size: cover;
 			cursor: pointer;
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoUlEQVQ4jZ3SSwqDMBAGYO+ReLWAMJCJOoW4CJg5kiBdlLYre7UuSrHB1Dxmlc3/MY80mvgK4GRTWF0/tTjw+nmM/lmCdP3UGuK7Qit2LRM5hIOWEsjf8LcAnNTEjxiSDJ8h2eEYUhwOkJFfhvxWHN7b9pu5VAC/bQM4WTRCbOZs5GxhSSRn2wqtMMS36C/MnfOA1Nw5QHDgtebOCq3QNC9vVkWLrEbgQiEAAAAASUVORK5CYII=);
 		}
 		.maximize {
-			width: 16px;
-			height: 16px;
-			min-width: 16px;
+			width: var(--jswmWindowButtonWidth, 16px);
+			height: var(--jswmWindowButtonHeight, 16px);
+			min-width: var(--jswmWindowButtonWidth, 16px);
+			background-position: center center;
+			background-size: cover;
 			cursor: pointer;
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVQ4jWPIyK2+k5lTvYI8XHWLITOnegUDmSAzp3rFqAGjBowaQDUDsqvuZuRUryEPV90GAInCdxSs9GJNAAAAAElFTkSuQmCC);
 			margin-right: 16px;
 		}
 		.minimize {
-			width: 16px;
-			height: 16px;
-			min-width: 16px;
+			width: var(--jswmWindowButtonWidth, 16px);
+			height: var(--jswmWindowButtonHeight, 16px);
+			min-width: var(--jswmWindowButtonWidth, 16px);
+			background-position: center center;
+			background-size: cover;
 			cursor: pointer;
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVQ4jWNgGPogMb1Yi1y9qdnl2gzpuVXz07Iq3EjVnJ5d6ZWZXb2AIS0tjTUzp2ppRk6FA/Gaq5wzc6qWpqWlsTIwMDAweHp6smfmVK9KzSq3IqQ5JbPSNjOnelVoaCgbikRoaChnRnb1uvT0MhNcmtOyK80zsqvXOTgkcGBVEBqaxZOZU7kxPb1cH1NzqVFmTuXG2NhYbrxOTEsr58/IrtyKHDvJGSU6mbnVW/ySkngJ+BDqkuRCoczc6m0J6aWqaWnFGhnZlVsTEgoEiNIMA4mJuaLp2RUHM3Kq98fFZQuTpBkG0tIqNaLSS1XJ0jx0AAD6B0okJCi9VgAAAABJRU5ErkJggg==);
 			margin: 0 16px;

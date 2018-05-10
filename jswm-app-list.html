@@ -11,6 +11,29 @@ Events:
 jswmWindowActive: emitted when a tab is clicked. The detail member of the
 event contains the id of the window that gets active.
 
+CSS variables for styling:
+
+--jswmAppListItemBorderRadius: buttons border radius. Default is 6px.
+
+--jswmAppListItemBackgroundGradientStart: button background gradient start 
+color. Default is #515151.
+
+--jswmAppListItemBackgroundGradientEnd: button background gradient start color. 
+Default is #333.
+
+--jswmAppListActiveItemBackgroundGradientStart: active button background 
+gradient start color. Default is #898989.
+
+--jswmAppListActiveItemBackgroundGradientEnd: active button background gradient
+start color. Default is #3f3f3f.
+
+--jswmAppListItemMaxWidth: buttons max width. Default is 150px.
+
+--jswmAppListItemFontFamily: buttons font family. Default is Arial.
+
+--jswmAppListItemFontSize: buttons font size. Default is 13px.
+
+--jswmAppListItemFontColor: buttons font color. Default is #fff;
 -->
 
 
@@ -26,19 +49,20 @@ event contains the id of the window that gets active.
 		button {
 			border: 0;
 			height: 100%;
-			background: rgba(81,81,81,1);
-			border-radius: 6px;
+			border-radius: var(--jswmAppListItemBorderRadius, 6px);
 			margin: 0 5px;
-			background: linear-gradient(to bottom, rgba(81,81,81,1) 0%, rgba(51,51,51,1) 100%);
+			background: linear-gradient(to bottom, var(--jswmAppListItemBackgroundGradientStart, #515151) 0%, var(--jswmAppListItemBackgroundGradientEnd, #333) 100%);
 			border: 1px solid #464646;
-			color: #fff;
+			color: var(--jswmAppListItemFontColor, #fff);
+			font-family: var(--jswmAppListItemFontFamily, Arial);
+			font-size: var(--jswmAppListItemFontSize, 13px);
 			-moz-user-select: none;
 			-webkit-user-select: none;
 			-ms-user-select: none;
     		user-select: none;
     		cursor: pointer;
     		outline: 0;
-    		max-width: 120px;
+    		max-width: var(--jswmAppListItemMaxWidth, 150px);
     		white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
@@ -47,8 +71,7 @@ event contains the id of the window that gets active.
 			border: 0;
 		}
 		.active {
-			background: rgba(137,137,137,1);
-			background: linear-gradient(to bottom, rgba(137,137,137,1) 0%, rgba(63,63,63,1) 100%);
+			background: linear-gradient(to bottom, var(--jswmAppListActiveItemBackgroundGradientStart, #898989) 0%, var(--jswmAppListActiveItemBackgroundGradientEnd, #3f3f3f) 100%);
 		}
 		</style>
 		<nav id="list">

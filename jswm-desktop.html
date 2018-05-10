@@ -23,6 +23,43 @@ Events:
 jswmDesktopCreated: emitted when the desktop is created so other components can 
 update themselves. The detail event member contains a reference to the desktop.
 
+CSS variables for styling:
+
+--jswmDesktopAppMenuHeaderFontSize: font size of the app menu header caption. 
+Default is 30px.
+
+--jswmDesktopAppMenuHeaderFontFamily: font family of the app menu header 
+caption. Default is Arial.
+
+--jswmDesktopAppMenuHeaderFontWeight: font weight of the app menu header 
+caption. Default is 100.
+
+--jswmDesktopAppMenuHeaderFontColor: font color of the app menu header caption.
+Default is #000.
+
+--jswmDesktopAppMenuHeaderBackgroundColor: background color of the app menu
+header. Default is #d7d7d7.
+
+--jswmDesktopAppMenuBackgroundColor: background color of the app menu container.
+Default is #e8e8e8.
+
+--jswmDesktopAppMenuButtonWidth: width of the app menu buttons (close and back). 
+Default is 32px.
+
+--jswmDesktopAppMenuButtonHeight: height of the app menu buttons (close and back). 
+Default is 32px.
+
+--jswmDesktopAppMenuItemFontFamily: font family of the app menu items. 
+Default is Arial.
+
+--jswmDesktopAppMenuItemFontFamily: font size of the app menu items. Default is
+15px.
+
+--jswmDesktopAppMenuItemFontColor: font color of the app menu items. Default is
+#000.
+
+--jswmDesktopAppMenuItemBackgroundColor: background color of the app menu items.
+Default is #fff.
 -->
 
 
@@ -86,16 +123,17 @@ update themselves. The detail event member contains a reference to the desktop.
 			width: calc(100% - 40px);
 			max-width: 980px;
 			max-height: 580px;
-			background: #e8e8e8;
 			border-radius: 8px;
 			display: flex;
 			flex-direction: column;
 			overflow: auto;
+			background-color: var(--jswmDesktopAppMenuBackgroundColor, #e8e8e8);
 		}
 		.appMenuHeader {
 			display: flex;
+			align-items: center;
 			padding: 10px;
-			background-color: #d7d7d7;
+			background-color: var(--jswmDesktopAppMenuHeaderBackgroundColor, #d7d7d7);
 		}
 		.appMenuHeaderFolder {
 			flex-grow: 1;
@@ -103,11 +141,13 @@ update themselves. The detail event member contains a reference to the desktop.
 			align-items: center;
 		}
 		.appMenuHeaderFolderBack {
-			width: 32px;
-			height: 32px;
+			width: var(--jswmDesktopAppMenuButtonWidth, 32px);
+			height: var(--jswmDesktopAppMenuButtonHeight, 32px);
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACOUlEQVRYhe2XT4jNURTH7/xhUDaWtpLYUrKgX2nUQyTdlI3xTPeec+85vzGY99495zelJsXGwmKSYqHkTylFxNrSxtZCycJiChHGGH4WbzuG6f38pObU3X3P/Xy6i3vPNWa5/rcaDa3Nxpj+fwJ3UWLIixLzya21wz2lMyEvSh+lXTscYypCXpSeZKxudh9EPRfyooSQfO1wR52LQPLdxXSsbng/sEwj67ynzpFaydbaASS9hqxzEDuHaoVnWTaIJDeAddbHtLdWuLV2JXK6iyyffJTdtcKzbGQVsj7AqB9GMe2sFe6cWwMkTzzJOxfT9lrhxhgDnF4DyVcM+hhJb/W6IMpNYLkKJJM+ynCj0RhaXIDkVciLEqM+r0IASe8g60MkeRHyokTWt8hy3p4YX7eggLV2tWd9hKzvfUw7qjzdZrO1Hii1gNMbjDLjY/vggsFGozHkWe8By0cf27uqlDDGmAPN5lpguRzyogSS8QVDzrkVwHIbSD/7KMNVSxhjjCfh7rsiIwsGsiwbBNbrwDoLMe3/KxKsU8jypYmtTb/K9HvSK0DyDahzuGoBa+0A5ukZULq/WK4PSS4h67wjOVq1hAudPSEvyuP+9JZFJYD0ArL+gCjNih36POtLzzr12yCQnO1OQxqqNACWaWB5+mdhSp3uPJhOVSXgSQGjzPxxA8Z0sntjpqIKARxTi6zzS2rypBDyovS+ta1XAYftfcg6t+TGET+x0VTwMbHWDjg3saHXfZar5/oJIbMtHe5+/g0AAAAASUVORK5CYII=);
 			margin: 0 20px 0 10px;
 			cursor: pointer;
+			background-size: cover;
+			background-position: center center;
 		}
 		#appMenuHeaderFolderName {			
 			font-size: var(--jswmDesktopAppMenuHeaderFontSize, 30px);
@@ -116,11 +156,13 @@ update themselves. The detail event member contains a reference to the desktop.
 			color: var(--jswmDesktopAppMenuHeaderFontColor, #000);
 		}
 		.appMenuHeaderClose {
-			width: 32px;
-			height: 32px;
+			width: var(--jswmDesktopAppMenuButtonWidth, 32px);
+			height: var(--jswmDesktopAppMenuButtonHeight, 32px);
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4ElEQVRYhcXWSQ6DMAxA0dw2kwmwjMtdEb0IXUUVcxJsh2WR+p8YbJQFXKyPgxI+DOBoARdlfRxcmFZJhAEcXZhWDdhtfpBAHOL7E5yIy7gE4jHOiciOcyCK45SI6vjJH/Ti8XSkOVGCIIvXIMjjJQi2eA6CPX6HEIufIcTje0STuFL/y+7CtBofQ5O4Buw0YC+KOLvnYoi7B44dkfO0syFKXjVyRM17ToZ4M2ReIygmXEJUfw1RTDjjY6j6HqQcr9kIzsXyiJDYapcIyZV6QLTY5xuEhc+3xT7XgJ31OP8AxupkenBG78AAAAAASUVORK5CYII=);
 			margin-right: 10px;
 			cursor: pointer;
+			background-size: cover;
+			background-position: center center;
 		}
 		.appMenuContent {
 			display: flex;
@@ -129,7 +171,6 @@ update themselves. The detail event member contains a reference to the desktop.
 			padding: 10px 0;
 		}
 		.appMenuItem {
-			background-color: #fff;
 			margin: 10px;
 			padding: 10px;
 			width: 200px;
@@ -139,7 +180,6 @@ update themselves. The detail event member contains a reference to the desktop.
 			justify-content: center;
 			text-align: center;
 			line-height: 25px;
-			font-size: 15px;
 			box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     		transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     		border-radius: 4px;
@@ -148,6 +188,10 @@ update themselves. The detail event member contains a reference to the desktop.
 			-ms-user-select: none;
     		user-select: none;
     		cursor: pointer;
+    		font-family: var(--jswmDesktopAppMenuItemFontFamily, Arial);
+    		font-size: var(--jswmDesktopAppMenuItemFontSize, 15px);
+    		color: var(--jswmDesktopAppMenuItemFontColor, #000);
+    		background-color: var(--jswmDesktopAppMenuItemBackgroundColor, #fff);
 		}
 		.appMenuItem:hover {
   			box-shadow: 0 3px 5px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);
