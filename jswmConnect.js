@@ -36,7 +36,7 @@ window.addEventListener("message", (e) =>
 // When user clicks inside this window, notify JSWM
 document.getElementsByTagName("html")[0].addEventListener("click", () =>
 {
-	emitJSWMevent("jswmWindowActive", {windowId: jswmWindowId});
+	emitJSWMevent("jswmWindowFocus", {windowId: jswmWindowId});
 });
 
 /**

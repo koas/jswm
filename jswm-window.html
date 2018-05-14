@@ -33,8 +33,13 @@ jswmWindowRestored: emitted when the window is restored from maximized or
 minimized to its last geometry. The detail event member contains the id of the 
 window.
 
-jswmWindowActive: emitted when the window is clicked. The detail member of the
-event contains the id of the window that gets active.
+jswmWindowFocus: emitted when the window get focus. The detail member of the
+event contains the id of the window.
+
+jswmWindowBlur: emitted when the window loses focus. The detail member of the
+event contains the id of the window.
+
+jswmUserEvent: this event is emitted from inside a window.
 
 jswmNewMaxWindowZIndex: emitted when a window gets a new zIndex. This is used
 by the desktop element to set the app menu div to a zIndex higher than that
@@ -269,14 +274,37 @@ content. Default is #eee.
         	this.mouseOp = "";
         	this.lastGeometry = null;
         	this.zIndex = 1;
+        	this.hasFocus = false;
 
-        	// Listen to the active window event
-	        document.addEventListener("jswmWindowActive", (e) => 
+        	// Listen to user defined events
+        	document.addEventListener("jswmUserEvent", (e) => 
+	        {
+	        	console.info(e);
+	        	// Send the event to the iframe
+	        	this.sendEventToIframe({event: "jswmUserEvent", detail: e.detail});
+	        });
+
+        	// Listen to the blur event
+        	document.addEventListener("jswmWindowBlur", (e) => 
+	        {
+	        	if (e.detail.windowId != this.id || !this.hasFocus)
+	        		return;
+
+	        	this.hasFocus = false;
+
+	        	// Send the blur event to the iframe
+	        	this.sendEventToIframe({event: "jswmWindowBlur", windowId: this.id});
+	        });
+
+        	// Listen to the focus event
+	        document.addEventListener("jswmWindowFocus", (e) => 
 	        {
 	        	// If we are the active window get all other windows z-index and
 	        	// make our z-index higher
-	        	if (e.detail.windowId != this.id)
+	        	if (e.detail.windowId != this.id || this.hasFocus)
 	        		return;
+
+	        	this.hasFocus = true;
 
 	        	let wnds = document.getElementsByTagName("jswm-window");
 	        	let maxIndex = 0;
@@ -296,6 +324,9 @@ content. Default is #eee.
 	        		composed: true
 	        	});
 	        	this.dispatchEvent(event);
+	        	
+	        	// Send the focus event to the iframe
+	        	this.sendEventToIframe({event: "jswmWindowFocus", windowId: this.id});
 
 	        	// Was the window minimized?
 	        	if (this.$.main.style.display == "none")
@@ -350,9 +381,9 @@ content. Default is #eee.
 		
 		makeActive()
 		{
-			jswmDebug(`JSWMwindow::makeActive -> emitting jswmWindowActive event (window id: ${this.id} caption: ${this.title})`);
-			// Emit the window selected event
-        	let event = new CustomEvent("jswmWindowActive",
+			jswmDebug(`JSWMwindow::makeActive -> emitting jswmWindowFocus event (window id: ${this.id} caption: ${this.title})`);
+			// Emit the window focus event
+        	let event = new CustomEvent("jswmWindowFocus",
         	{
         		detail: {windowId: this.id}, bubbles: true, composed: true
         	});
@@ -389,6 +420,7 @@ content. Default is #eee.
         	
         	// Hide the window
         	this.$.main.style.display = "none";
+        	this.hasFocus = false;
         }
 
         maximize()

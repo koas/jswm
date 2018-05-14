@@ -411,6 +411,13 @@ Default is #fff.
 
 			// Close the app menu
 			this.toggleAppMenu();
+
+			// Set the focus to the new window
+			let event = new CustomEvent("jswmWindowFocus",
+        	{
+        		detail: {windowId: windowId}, bubbles: true, composed: true
+        	});
+        	this.dispatchEvent(event);
 		}
 
 		mouseDown(e)

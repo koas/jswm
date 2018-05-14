@@ -6,11 +6,6 @@ This component is a list of open windows, it must be created inside a panel.
 Author: Koas (alvaro.calleja@gmail.com)
 https://github.com/koas/jswm
 
-Events:
-
-jswmWindowActive: emitted when a tab is clicked. The detail member of the
-event contains the id of the window that gets active.
-
 CSS variables for styling:
 
 --jswmAppListItemBorderRadius: buttons border radius. Default is 6px.
@@ -111,7 +106,7 @@ start color. Default is #3f3f3f.
 	        });
 
 	        // Listen to the active window event
-	        document.addEventListener("jswmWindowActive", (e) => 
+	        document.addEventListener("jswmWindowFocus", (e) => 
 	        {
 	        	this.setActiveWindow(e.detail.windowId);
 	        });
@@ -151,15 +146,23 @@ start color. Default is #3f3f3f.
 			let buttons = this.$.list.getElementsByTagName("button");
 			for (let x = 0; x < buttons.length; ++x)
 			{
-    			if (buttons[x].getAttribute("data-windowId") == windowId)
+				let buttonWindowId = buttons[x].getAttribute("data-windowId");
+    			if (buttonWindowId == windowId)
     			{
-    				jswmDebug(`JSQMappList::setActiveWindow adding class active to window id: ${buttons[x].id} caption: ${buttons[x].title}`);
+    				jswmDebug(`JSQMappList::setActiveWindow adding class active to window id: ${buttonWindowId} caption: ${buttons[x].title}`);
     				buttons[x].classList.add("active");
     			}
     			else
     			{
     				jswmDebug(`JSQMappList::setActiveWindow removing class active to window id: ${buttons[x].id} caption: ${buttons[x].title}`);
     				buttons[x].classList.remove("active");
+
+    				// Emit the jswmWindowBlur event
+    				let event = new CustomEvent("jswmWindowBlur",
+		        	{
+		        		detail: {windowId: buttonWindowId}, bubbles: true, composed: true
+		        	});
+		        	this.dispatchEvent(event);
     			}
 			}
 		}
@@ -175,8 +178,8 @@ start color. Default is #3f3f3f.
 			// If clicked with left button, activate window
 			if (e.button === 0)
 			{
-				// Emit the window selected event
-	        	let event = new CustomEvent("jswmWindowActive",
+				// Emit the window focus event
+	        	let event = new CustomEvent("jswmWindowFocus",
 	        	{
 	        		detail: {windowId: windowId}, bubbles: true, composed: true
 	        	});
