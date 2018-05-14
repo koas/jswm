@@ -21,11 +21,17 @@ jswmWindowCreated: emitted when the window is created so other components can
 update themselves. The detail event member contains a reference to the window.
 
 jswmWindowDestroyed: emitted when the window is destroyed so other components 
-can update themselves. The detail event member contains the id of the
-destroyed window.
+can update themselves. The detail event member contains the id of the window.
 
 jswmWindowMinimized: emitted when the window is minimized. The detail event 
-member contains the id of the destroyed window.
+member contains the id of the window.
+
+jswmWindowMaximized: emitted when the window is maximized. The detail event 
+member contains the id of the window.
+
+jswmWindowRestored: emitted when the window is restored from maximized or 
+minimized to its last geometry. The detail event member contains the id of the 
+window.
 
 jswmWindowActive: emitted when the window is clicked. The detail member of the
 event contains the id of the window that gets active.
@@ -291,8 +297,15 @@ content. Default is #eee.
 	        	});
 	        	this.dispatchEvent(event);
 
-	        	// Show the window (it could be in minimized state)
-        		this.$.main.style.display = "grid";
+	        	// Was the window minimized?
+	        	if (this.$.main.style.display == "none")
+	        	{
+	        		// Show the window
+        			this.$.main.style.display = "grid";
+
+        			// Send the restored event to the iframe
+        			this.sendEventToIframe({event: "jswmWindowRestored", windowId: this.id});
+        		}
 	        });
         }
 
@@ -363,12 +376,16 @@ content. Default is #eee.
         minimize()
         {
         	jswmDebug(`JSWMwindow::minimize -> emitting jswmWindowMinimized event (window id: ${this.id} caption: ${this.title})`);
+        	
         	// Emit the minimized window event
         	let event = new CustomEvent("jswmWindowMinimized",
         	{
         		detail: {windowId: this.id}, bubbles: true, composed: true
         	});
         	this.dispatchEvent(event);
+
+        	// Send event to iframe
+				this.sendEventToIframe({event: "jswmWindowMinimized", windowId: this.id});
         	
         	// Hide the window
         	this.$.main.style.display = "none";
@@ -392,6 +409,16 @@ content. Default is #eee.
 	        	this.$.ne.classList.remove("no-radius");
 	        	this.$.sw.classList.remove("no-radius");
 	        	this.$.se.classList.remove("no-radius");
+
+	        	// Emit the restored window event
+	        	let event = new CustomEvent("jswmWindowRestored",
+	        	{
+	        		detail: {windowId: this.id}, bubbles: true, composed: true
+	        	});
+	        	this.dispatchEvent(event);
+
+	        	// Send event to iframe
+				this.sendEventToIframe({event: "jswmWindowRestored", windowId: this.id});
         	}
         	else
         	{
@@ -415,6 +442,16 @@ content. Default is #eee.
 	        	this.$.ne.classList.add("no-radius");
 	        	this.$.sw.classList.add("no-radius");
 	        	this.$.se.classList.add("no-radius");
+
+	        	// Emit the maximized window event
+	        	let event = new CustomEvent("jswmWindowMaximized",
+	        	{
+	        		detail: {windowId: this.id}, bubbles: true, composed: true
+	        	});
+	        	this.dispatchEvent(event);
+
+	        	// Send event to iframe
+				this.sendEventToIframe({event: "jswmWindowMaximized", windowId: this.id});
 	        }
         }
 
@@ -547,11 +584,19 @@ content. Default is #eee.
 		iframeLoaded()
 		{
 			// When the iframe is loaded we must tell the iframe document the id
-			// of the window. The iframe document will use it to post a message
-			// (we listen to that message in jswm-main) when the body of the
-			// iframe is clicked, allowing JSWM to make the window active.
-			jswmDebug(`JSWMwindow::iframeLoaded -> sending window id to iframe (window id: ${this.id} caption: ${this.title})`);
-			this.$.ifr.contentWindow.postMessage({windowId: this.id}, "*");
+			// of the window. The iframe document will use the id to send 
+			// messages with events to JSWM (we listen to those messsages in 
+			// jswm-main)
+			let msgData = {event: "jswmWindowCreated", windowId: this.id};
+			this.sendEventToIframe(msgData);
+		}
+
+		sendEventToIframe(eventData)
+		{
+			jswmDebug(`JSWMwindow::sendEventToIframe (window id: ${this.id} caption: ${this.title})`);
+			jswmDebug(eventData);
+
+			this.$.ifr.contentWindow.postMessage(eventData, "*");
 		}
 	}
 
