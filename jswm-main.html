@@ -23,6 +23,11 @@ class JSWmain extends Polymer.Element
         
         this.activeDesktop = null;
 
+        // We require the parent element to have a relative or absolute position
+        let parentPos = this.parentNode.style.position;
+        if (parent != "relative" && parent != "absolute")
+            this.parentNode.style.position = "relative";
+
         // Default values for config
         this.configData = {apps: [], rootFolderCaption: "Home", debug: false};
         
@@ -66,7 +71,10 @@ class JSWmain extends Polymer.Element
         {
             jswmDebug(`Received event from window iframe, window id ${e.data.windowId}`);
 
-            // We just emit the event data sent by the iframe at JSWM level.
+            // We just emit the event data sent by the iframe at JSWM level,
+            // adding the windowId to the detail object so the iframes can 
+            // detect their own events.
+            e.data.detail.windowId = e.data.windowId;
             let event = new CustomEvent(e.data.event,
             {
                 detail: e.data.detail, bubbles: true, composed: true
