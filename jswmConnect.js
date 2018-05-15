@@ -14,16 +14,6 @@ var jswmWindowId = "";
 // When JSWM sends this window any event, it arrives here
 window.addEventListener("message", (e) =>
 {
-	// Call JSWM debug function
-	if (typeof window.parent.jswmDebug == "function")
-	{
-		let dbgMsg = "JSWM event received inside window iframe ";
-		if (jswmWindowId !== "")
-			dbgMsg += `(window id: ${jswmWindowId})`;
-		window.parent.jswmDebug(dbgMsg);
-		window.parent.jswmDebug(e.data);
-	}
-	
 	// If the event is window creation, save our window id
 	if (e.data.event == "jswmWindowCreated")
 		jswmWindowId = e.data.windowId;
@@ -48,13 +38,6 @@ function emitJSWMevent(eventName, detail)
 {
 	if (jswmWindowId === "")
 		return;
-
-	// Call JSWM debug function
-	if (typeof window.parent.jswmDebug == "function")
-	{
-		window.parent.jswmDebug(`Sending ${eventName} event to JSWM from inside window id ${jswmWindowId}, detail data:`);
-		window.parent.jswmDebug(detail);
-	}
 
 	// Create event and send it to JSWM
 	let eventData = {windowId: jswmWindowId, event: eventName, detail: detail};
