@@ -216,6 +216,18 @@ content. Default is #eee.
 			border-bottom-left-radius: 0;
 			border-bottom-right-radius: 0;
 		}
+		/* We can't use media queries because the JSWM main element may not be
+		using the full screen. We define the SMall class and assign it by
+		hand if the width assigned to the desktop is less than 1000px.*/
+		.mainSM {
+			width: 100% !important;
+			height: 100% !important;
+			left: 0 !important;
+			top: 0 !important;
+		}
+		.mainSM .title {
+			display: none !important;
+		}
 		</style>
 		<div id="main" class="main" on-mousedown="makeActive">
 			<div id="nw" class="nw" data-mouseOp="resizeNW" on-mousedown="setMouseOp"></div>
@@ -276,7 +288,7 @@ content. Default is #eee.
         	this.zIndex = 1;
         	this.hasFocus = false;
         }
-
+        
         connectedCallback()
         {
         	super.connectedCallback();

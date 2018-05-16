@@ -1,7 +1,7 @@
 <!--
 JSWM Loader
 
-Here we import all JSWM files. We also define some JS code used in all 
+Here we import all JSWM files. We also define some JS code used by all 
 components.
 
 Author: Koas (alvaro.calleja@gmail.com)
@@ -10,33 +10,23 @@ https://github.com/koas/jswm
 
 -->
 
-<script type="text/javascript">
+<script>
 /*jshint esversion: 6 */
 /*jshint -W097 */
 /*jshint -W117 */
 
-// matches() polyfill
-this.Element && function(ElementPrototype) {
-    ElementPrototype.matches = ElementPrototype.matches ||
-    ElementPrototype.matchesSelector ||
-    ElementPrototype.webkitMatchesSelector ||
-    ElementPrototype.msMatchesSelector ||
-    function(selector) {
-        var node = this, nodes = (node.parentNode || node.document).querySelectorAll(selector), i = -1;
-        while (nodes[++i] && nodes[i] != node);
-        return !!nodes[i];
-    };
-}(Element.prototype);
+/**
+ * Return the id of the jswm-main element for an element
+ * @param  {Object} element Element
+ * @return {String}         Id of its jswm-main element
+ */
+function jswmGetMainId(element)
+{
+	while (element.nodeName != "JSWM-MAIN")
+		element = element.parentNode;
 
-// closest() polyfill
-this.Element && function(ElementPrototype) {
-    ElementPrototype.closest = ElementPrototype.closest ||
-    function(selector) {
-        var el = this;
-        while (el.matches && !el.matches(selector)) el = el.parentNode;
-        return el.matches ? el : null;
-    };
-}(Element.prototype);
+	return element.id;
+}
 
 /**
  * Emits an event for this JSWM environment
@@ -48,7 +38,7 @@ function jswmEmitEvent(element, eventName, eventData)
 {
 	// Get the parent jswm-main id and append it to eventName. This allows
 	// multiple jswm-main elements in the same page without interferences.
-	eventName += "@" + element.closest("jswm-main").getAttribute("id");
+	eventName += "@" + jswmGetMainId(element);
 
 	let event = new CustomEvent(eventName,
 	{
@@ -73,7 +63,7 @@ function jswmListenToEvent(element, eventName, callback)
 {
 	// Get the parent jswm-main id and append it to eventName. This allows
 	// multiple jswm-main elements in the same page without interferences.
-	eventName += "@" + element.closest("jswm-main").getAttribute("id");
+	eventName += "@" + jswmGetMainId(element);
 
 	window.addEventListener(eventName, callback);
 }

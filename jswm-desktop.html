@@ -122,12 +122,25 @@ Default is #fff.
 		.appMenuContainerInner {
 			width: calc(100% - 40px);
 			max-width: 980px;
-			max-height: 580px;
+			max-height: 80%;
 			border-radius: 8px;
 			display: flex;
 			flex-direction: column;
 			overflow: auto;
 			background-color: var(--jswmDesktopAppMenuBackgroundColor, #e8e8e8);
+		}
+		.appMenuContainerInner::-webkit-scrollbar {
+		  width: 5px;
+		}
+		 
+		.appMenuContainerInner::-webkit-scrollbar-thumb {
+		  background: #bbb;
+		  border-radius: 20px;
+		}
+
+		.appMenuContainerInner::-webkit-scrollbar-track {
+		  background: #ddd;
+		  border-radius: 20px;
 		}
 		.appMenuHeader {
 			display: flex;
@@ -171,6 +184,7 @@ Default is #fff.
 			padding: 10px 0;
 		}
 		.appMenuItem {
+			box-sizing: border-box;
 			margin: 10px;
 			padding: 10px;
 			width: 200px;
@@ -196,6 +210,49 @@ Default is #fff.
 		.appMenuItem:hover {
   			box-shadow: 0 3px 5px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);
 		}
+		/* We can't use media queries because the JSWM main element may not be
+		using the full screen. We define the SMall class and assign it by
+		hand if the width assigned to the desktop is less than 1000px.*/
+		.appMenuContainerSM {
+			display: block;
+			overflow: auto;
+		}
+		.appMenuContainerSM::-webkit-scrollbar {
+		  width: 5px;
+		}
+		 
+		.appMenuContainerSM::-webkit-scrollbar-thumb {
+		  background: #bbb;
+		  border-radius: 20px;
+		}
+
+		.appMenuContainerSM::-webkit-scrollbar-track {
+		  background: #ddd;
+		  border-radius: 20px;
+		}
+		.appMenuContainerSM .appMenuContainerInner {
+				width: 100%;
+				/*height: 100%;*/
+				max-width: none;
+				max-height: none;
+				border-radius: 0;
+		}
+		.appMenuContainerSM .appMenuHeader {
+			display: none !important;
+		}
+		.appMenuContainerSM .appMenuContent {
+			padding: 0;
+		}
+		.appMenuContainerSM .appMenuItem {
+			width: 100%;
+		    height: auto;
+		    box-shadow: none;
+		    justify-content: left;
+		    line-height: normal;
+		    border-radius: 0;
+		    margin: 0;
+		    border-bottom: 1px solid #ccc;
+		}
 		</style>
 		<div id="main">
 			<div>
@@ -207,7 +264,7 @@ Default is #fff.
 				 on-mousemove="mouseMove">
 				<slot id="mainSlot"></slot>
 				<div id="appMenuContainer" class="appMenuContainer">
-					<div class="appMenuContainerInner">
+					<div id="appMenuContainerInner" class="appMenuContainerInner">
 						<div id="appMenuHeader" class="appMenuHeader">
 							<div class="appMenuHeaderFolder">
 								<div id="appMenuHeaderFolderBack" class="appMenuHeaderFolderBack" on-click="folderBack"></div>
@@ -300,6 +357,16 @@ Default is #fff.
 	        // Emit the desktop created event
 	        jswmDebug("JSWMdesktop -> emitting jswmDesktopCreated event");
 	        jswmEmitEvent(this, "jswmDesktopCreated", {desktop: this});
+	    }
+
+	    ready()
+	    {
+	    	super.ready();
+	    	
+	    	// If the width assigned to us is less than 1000px apply the small
+	    	// classes
+	    	if (this.$.content.offsetWidth < 1000)
+	    		this.$.appMenuContainer.classList.add("appMenuContainerSM");
 	    }
 		
 		toggleAppMenu(appData, rootCaption)
