@@ -22,8 +22,12 @@ https://github.com/koas/jswm
  */
 function jswmGetMainId(element)
 {
-	while (element.nodeName != "JSWM-MAIN")
+	while (element.nodeName != "JSWM-MAINa")
+	{
 		element = element.parentNode;
+		if (!element)
+			return "";
+	}
 
 	return element.id;
 }

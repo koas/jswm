@@ -22,7 +22,9 @@ gradient start color. Default is #898989.
 --jswmAppListActiveItemBackgroundGradientEnd: active button background gradient
 start color. Default is #3f3f3f.
 
---jswmAppListItemMaxWidth: buttons max width. Default is 150px.
+--jswmAppListItemMaxWidth: buttons max width. Default is none.
+
+--jswmAppListItemMaxWidth: buttons max width. Default is 70px.
 
 --jswmAppListItemFontFamily: buttons font family. Default is Arial.
 
@@ -39,7 +41,6 @@ start color. Default is #3f3f3f.
 		nav {
 			display: flex;
 			height: 100%;
-			flex-wrap: wrap;
 		}
 		button {
 			border: 0;
@@ -57,7 +58,8 @@ start color. Default is #3f3f3f.
     		user-select: none;
     		cursor: pointer;
     		outline: 0;
-    		max-width: var(--jswmAppListItemMaxWidth, 150px);
+    		max-width: var(--jswmAppListItemMaxWidth, none);
+    		min-width: var(--jswmAppListItemMinWidth, 70px);
     		white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
@@ -88,7 +90,6 @@ start color. Default is #3f3f3f.
 			super();
 
 			// Listen to created window event
-			console.info(this);
 	        jswmListenToEvent(this, "jswmWindowCreated", (e) => 
 	        {
 	        	jswmDebug("JSWMappList jswmWindowCreated event listener");

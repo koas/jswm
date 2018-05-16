@@ -9,14 +9,14 @@ https://github.com/koas/jswm
 Properties:
 
 backgroundColor: default is 115287
-wallpaperUrl: URL for the wallpaper. Default is none (no wallpaper)
-wallpaperMode: "center" center the image on screen, no repeating.
-			   "mosaic" repeat the image horizontally and vertically
-			   "contain" resize the image to make sure the image is fully 
-			   visible.
-			   "cover" resize the image to cover the entire container, even if 
-			   it has to stretch the image or cut a little bit off one of the 
-			   edges. This is the default value.
+wallpaper-url: URL for the wallpaper. Default is none (no wallpaper)
+wallpaper-mode: "center" center the image on screen, no repeating.
+			    "mosaic" repeat the image horizontally and vertically
+			    "contain" resize the image to make sure the image is fully 
+			    visible.
+			    "cover" resize the image to cover the entire container, even if 
+			    it has to stretch the image or cut a little bit off one of the 
+			    edges. This is the default value.
 
 Events:
 
@@ -212,7 +212,7 @@ Default is #fff.
 		}
 		/* We can't use media queries because the JSWM main element may not be
 		using the full screen. We define the SMall class and assign it by
-		hand if the width assigned to the desktop is less than 1000px.*/
+		hand if the width assigned to the desktop is less than mobMaxWidth*/
 		.appMenuContainerSM {
 			display: block;
 			overflow: auto;
@@ -311,6 +311,7 @@ Default is #fff.
 	        this.folderStack = [];
 	        this.mouseWindow = "";
 	        this.windowsList = [];
+	        this.mobMaxWidth = 1000;
 
 	        // If the jswm-desktop element does not have an id, create one
 		    if (!this.getAttribute("id"))
@@ -363,9 +364,9 @@ Default is #fff.
 	    {
 	    	super.ready();
 	    	
-	    	// If the width assigned to us is less than 1000px apply the small
-	    	// classes
-	    	if (this.$.content.offsetWidth < 1000)
+	    	// If the width assigned to us is less than mobMaxWidth apply the 
+	    	// small classes
+	    	if (this.$.content.offsetWidth < this.mobMaxWidth)
 	    		this.$.appMenuContainer.classList.add("appMenuContainerSM");
 	    }
 		
@@ -487,6 +488,13 @@ Default is #fff.
 			let defH = Math.floor(Math.random() * (maxH - minH + 1) + minH);
 			let defX = Math.floor((m.offsetWidth - defW) / 2);
 			let defY = Math.floor((m.offsetHeight - defH) / 2);
+
+			// If in mobile mode hide the title bar and set the maximized attr
+			if (this.$.content.offsetWidth < this.mobMaxWidth)
+			{
+				w.setAttribute("title-bar", "0");
+				w.setAttribute("maximized", "1");
+			} 
 
 			w.setAttribute("width", defW);
 			w.setAttribute("height", defH);

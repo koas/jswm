@@ -14,6 +14,8 @@ width: initial window width in pixels, default is 300
 height: initial window height in pixels, default is 300
 left: initial left position in pixels, default is 0
 top: initial top position in pixels, default is 0
+title-bar: 1 to show the window title bar, 0 to hide it, default is 1
+maximized: 1 to show the window maximized, default is 0
 
 Events:
 
@@ -239,7 +241,7 @@ content. Default is #eee.
 			<div class="w" data-mouseOp="resizeW" on-mousedown="setMouseOp"></div>
 			<div class="e" data-mouseOp="resizeE" on-mousedown="setMouseOp"></div>
 			<div class="content">
-				<div class="title">
+				<div id="title" class="title">
 					<div class="caption" data-mouseOp="move" 
 						 on-mousedown="setMouseOp" on-dblclick="maximize">{{title}}</div>
 					<div class="minimize" on-click="minimize"></div>
@@ -273,7 +275,9 @@ content. Default is #eee.
 				width: {type: Number, value: 300, reflectToAttribute: true},
 				height: {type: Number, value: 300, reflectToAttribute: true},
 				left: {type: Number, value: 0, reflectToAttribute: true},
-				top: {type: Number, value: 0, reflectToAttribute: true}
+				top: {type: Number, value: 0, reflectToAttribute: true},
+				titleBar: {type: Number, value: 1, reflectToAttribute: true},
+				maximized: {type: Number, value: 0, reflectToAttribute: true}
 			};
 		}
 
@@ -302,10 +306,17 @@ content. Default is #eee.
 	        this.$.main.style.setProperty("--windowLeft", this.left + "px");
 	        this.$.main.style.setProperty("--windowTop", this.top + "px");
 
+	        // If titleBar is 0 hide title bar
+	        if (this.titleBar === 0)
+	        	this.$.title.style.display = "none";
+
+	        // If maximized is set, maximize window
+	        if (this.maximized == 1)
+	        	this.maximize();
+
 	        // Listen to user defined events
         	jswmListenToEvent(this, "jswmUserEvent", (e) => 
 	        {
-	        	console.info(e);
 	        	// Send the event to the iframe
 	        	this.sendEventToIframe({event: "jswmUserEvent", detail: e.detail});
 	        });

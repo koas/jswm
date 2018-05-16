@@ -22,21 +22,35 @@ is #2f2f2f.
 	
 	<template>
 		<style>
-		#main {
+		.main {
 			display: flex;
 			height: var(--jswmPanelHeight, 30px);
 			background: linear-gradient(to bottom, var(--jswmPanelBackgroundGradientStart, #414141) 0%, var(--jswmPanelBackgroundGradientEnd, #2f2f2f) 100%);
 		}
-		#middleContent {
+		.middleContent {
 			flex: 1;
+			overflow: auto;
+		}
+		.middleContent::-webkit-scrollbar {
+		  height: 5px;
+		}
+		 
+		.middleContent::-webkit-scrollbar-thumb {
+		  background: #bbb;
+		  border-radius: 20px;
+		}
+
+		.middleContent::-webkit-scrollbar-track {
+		  background: #ddd;
+		  border-radius: 20px;
 		}
 		</style>
 
-		<div id="main">
+		<div id="main" class="main">
 			<div>
 				<slot name="leftContent"></slot>
 			</div>
-			<div id="middleContent">
+			<div id="middleContent" class="middleContent">
 				<slot name="middleContent"></slot>
 			</div>
 			<div>

@@ -94,7 +94,6 @@ class JSWmain extends Polymer.Element
         {
             jswmDebug(`JSWMmain -> jswmPanelItemClicked event listener, item id ${e.detail.id}`);
 
-            console.info(this.activeDesktop);
             if (e.detail.id == "jswmAppMenuOpener" && this.activeDesktop)
             {
                 this.activeDesktop.toggleAppMenu(this.configData.apps,
