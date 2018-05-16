@@ -407,6 +407,26 @@ Default is #fff.
 			w.setAttribute("title", caption);
 			let windowId = "window_" + Math.floor(Math.random() * 9999999);
 			w.setAttribute("id", windowId);
+			
+			// Assign random geometry
+			let m = this.$.content;
+			
+			let maxW = m.offsetWidth * 0.9;
+			let minW = m.offsetWidth * 0.5;
+			let maxH = m.offsetHeight * 0.9;
+			let minH = m.offsetHeight * 0.5;
+
+			let defW = Math.floor(Math.random() * (maxW - minW + 1) + minW);
+			let defH = Math.floor(Math.random() * (maxH - minH + 1) + minH);
+			let defX = Math.floor((m.offsetWidth - defW) / 2);
+			let defY = Math.floor((m.offsetHeight - defH) / 2);
+
+			w.setAttribute("width", defW);
+			w.setAttribute("height", defH);
+			w.setAttribute("left", defX);
+			w.setAttribute("top", defY);
+
+			// Add to DOM
 			this.appendChild(w);
 
 			// Close the app menu
@@ -436,6 +456,16 @@ Default is #fff.
 				{
 					e = e || window.event;
 					this.mouseWindow.mouseDown(e.clientX, e.clientY);
+
+					// Emit the cover iframes event. This will make all windows
+					// cover their iframes with a transparent div to avoid
+					// problems when resizing windows that are positioned over
+					// other windows
+					let event = new CustomEvent("jswmCoverIframes",
+		        	{
+		        		bubbles: true, composed: true
+		        	});
+		        	this.dispatchEvent(event);
 				}
 			}
 		}
@@ -443,7 +473,16 @@ Default is #fff.
 		mouseUp()
 		{
 			if (this.mouseWindow)
-				this.mouseWindow.mouseUp();
+			{
+				// Emit the uncover iframes event. All windows will remove the
+				// transparent div over their iframes, making them responsive 
+				// again.
+				let event = new CustomEvent("jswmUncoverIframes",
+	        	{
+	        		bubbles: true, composed: true
+	        	});
+	        	this.dispatchEvent(event);
+			}
 			
 			this.mouseWindow = null;
 		}
