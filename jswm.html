@@ -1,13 +1,83 @@
 <!--
 JSWM Loader
 
-This file loads all the required files.
+Here we import all JSWM files. We also define some JS code used in all 
+components.
 
 Author: Koas (alvaro.calleja@gmail.com)
 https://github.com/koas/jswm
 
 
 -->
+
+<script type="text/javascript">
+/*jshint esversion: 6 */
+/*jshint -W097 */
+/*jshint -W117 */
+
+// matches() polyfill
+this.Element && function(ElementPrototype) {
+    ElementPrototype.matches = ElementPrototype.matches ||
+    ElementPrototype.matchesSelector ||
+    ElementPrototype.webkitMatchesSelector ||
+    ElementPrototype.msMatchesSelector ||
+    function(selector) {
+        var node = this, nodes = (node.parentNode || node.document).querySelectorAll(selector), i = -1;
+        while (nodes[++i] && nodes[i] != node);
+        return !!nodes[i];
+    };
+}(Element.prototype);
+
+// closest() polyfill
+this.Element && function(ElementPrototype) {
+    ElementPrototype.closest = ElementPrototype.closest ||
+    function(selector) {
+        var el = this;
+        while (el.matches && !el.matches(selector)) el = el.parentNode;
+        return el.matches ? el : null;
+    };
+}(Element.prototype);
+
+/**
+ * Emits an event for this JSWM environment
+ * @param  {Object} element   The element that emits the event
+ * @param  {String} eventName Event name
+ * @param  {Object} eventData Event data
+ */
+function jswmEmitEvent(element, eventName, eventData)
+{
+	// Get the parent jswm-main id and append it to eventName. This allows
+	// multiple jswm-main elements in the same page without interferences.
+	eventName += "@" + element.closest("jswm-main").getAttribute("id");
+
+	let event = new CustomEvent(eventName,
+	{
+		detail: eventData,
+		bubbles: true,
+		composed: true
+	});
+    
+    jswmDebug(`Emitting event ${eventName}, data:`);
+    jswmDebug(eventData);
+
+    window.dispatchEvent(event);
+}
+
+/**
+ * Creates an event listener for the provided element and event
+ * @param  {Object}   element   Element that listens to the event
+ * @param  {String}   eventName The event name
+ * @param  {Function} callback  Function to be called
+ */
+function jswmListenToEvent(element, eventName, callback)
+{
+	// Get the parent jswm-main id and append it to eventName. This allows
+	// multiple jswm-main elements in the same page without interferences.
+	eventName += "@" + element.closest("jswm-main").getAttribute("id");
+
+	window.addEventListener(eventName, callback);
+}
+</script>
 
 <link rel="import" href="polymer/polymer-element.html"/>
 <link rel="import" href="jswm-main.html"/>

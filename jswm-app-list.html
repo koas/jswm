@@ -88,7 +88,7 @@ start color. Default is #3f3f3f.
 			super();
 
 			// Listen to created window event
-	        document.addEventListener("jswmWindowCreated", (e) => 
+	        jswmListenToEvent(this, "jswmWindowCreated", (e) => 
 	        {
 	        	jswmDebug("JSWMappList jswmWindowCreated event listener");
 	        	let wnd = e.detail.wnd;
@@ -106,13 +106,13 @@ start color. Default is #3f3f3f.
 	        });
 
 	        // Listen to the active window event
-	        document.addEventListener("jswmWindowFocus", (e) => 
+	        jswmListenToEvent(this, "jswmWindowFocus", (e) => 
 	        {
 	        	this.setActiveWindow(e.detail.windowId);
 	        });
 
 	        // Listen to the minimized window event
-	        document.addEventListener("jswmWindowMinimized", (e) => 
+	        jswmListenToEvent(this, "jswmWindowMinimized", (e) => 
 	        {
 	        	// Remove the active class from the window button
 	        	let buttons = this.getElementsByTagName("button");
@@ -124,7 +124,7 @@ start color. Default is #3f3f3f.
 	        });
 
 	        // Listen to destroyed window event
-	        document.addEventListener("jswmWindowDestroyed", (e) => 
+	        jswmListenToEvent(this, "jswmWindowDestroyed", (e) => 
 	        {
 	        	// Remove window button
 	        	let buttons = this.getElementsByTagName("button");
@@ -158,11 +158,7 @@ start color. Default is #3f3f3f.
     				buttons[x].classList.remove("active");
 
     				// Emit the jswmWindowBlur event
-    				let event = new CustomEvent("jswmWindowBlur",
-		        	{
-		        		detail: {windowId: buttonWindowId}, bubbles: true, composed: true
-		        	});
-		        	this.dispatchEvent(event);
+    				jswmEmitEvent(this, "jswmWindowBlur", {windowId: buttonWindowId});
     			}
 			}
 		}
@@ -179,11 +175,7 @@ start color. Default is #3f3f3f.
 			if (e.button === 0)
 			{
 				// Emit the window focus event
-	        	let event = new CustomEvent("jswmWindowFocus",
-	        	{
-	        		detail: {windowId: windowId}, bubbles: true, composed: true
-	        	});
-	        	this.dispatchEvent(event);
+				jswmEmitEvent(this, "jswmWindowFocus", {windowId: windowId});
 	        }
 		}
 	}

@@ -43,13 +43,7 @@ class JSWMPanelItem extends Polymer.Element
 
     clicked()
     {
-    	let detail = {id: this.id};
-    	let event = new CustomEvent("jswmPanelItemClicked", {
-    		detail: detail,
-    		bubbles: true,
-    		composed: true
-    	});
-    	this.dispatchEvent(event);
+    	jswmEmitEvent(this, "jswmPanelItemClicked", {id: this.id});
     }
 }
 

@@ -275,9 +275,23 @@ content. Default is #eee.
         	this.lastGeometry = null;
         	this.zIndex = 1;
         	this.hasFocus = false;
+        }
 
-        	// Listen to user defined events
-        	document.addEventListener("jswmUserEvent", (e) => 
+        connectedCallback()
+        {
+        	super.connectedCallback();
+
+        	// Emit the created window event
+        	jswmEmitEvent(this, "jswmWindowCreated", {wnd: this});
+
+	        // Set initial geometry
+	        this.$.main.style.setProperty("--windowWidth", this.width + "px");
+	        this.$.main.style.setProperty("--windowHeight", this.height + "px");
+	        this.$.main.style.setProperty("--windowLeft", this.left + "px");
+	        this.$.main.style.setProperty("--windowTop", this.top + "px");
+
+	        // Listen to user defined events
+        	jswmListenToEvent(this, "jswmUserEvent", (e) => 
 	        {
 	        	console.info(e);
 	        	// Send the event to the iframe
@@ -285,19 +299,19 @@ content. Default is #eee.
 	        });
 
         	// Listen to the cover iframes event
-        	document.addEventListener("jswmCoverIframes", (e) => 
+        	jswmListenToEvent(this, "jswmCoverIframes", (e) => 
 	        {
 	        	this.setIframeCover(true);
 	        });
 
 	        // Listen to the uncover iframes event
-        	document.addEventListener("jswmUncoverIframes", (e) => 
+        	jswmListenToEvent(this, "jswmUncoverIframes", (e) => 
 	        {
 	        	this.setIframeCover(false);
 	        });
 
         	// Listen to the blur event
-        	document.addEventListener("jswmWindowBlur", (e) => 
+        	jswmListenToEvent(this, "jswmWindowBlur", (e) => 
 	        {
 	        	if (e.detail.windowId != this.id || !this.hasFocus)
 	        		return;
@@ -309,7 +323,7 @@ content. Default is #eee.
 	        });
 
         	// Listen to the focus event
-	        document.addEventListener("jswmWindowFocus", (e) => 
+	        jswmListenToEvent(this, "jswmWindowFocus", (e) => 
 	        {
 	        	// If we are the active window get all other windows z-index and
 	        	// make our z-index higher
@@ -329,13 +343,8 @@ content. Default is #eee.
 	        	this.$.main.style.zIndex = maxIndex;
 
 	        	// Emit the event with the new max zIndex
-	        	let detail = {newMaxZIndex: maxIndex};
-	        	let event = new CustomEvent("jswmNewMaxWindowZIndex", {
-	        		detail: detail,
-	        		bubbles: true,
-	        		composed: true
-	        	});
-	        	this.dispatchEvent(event);
+	        	jswmEmitEvent(this, "jswmNewMaxWindowZIndex",
+	        				  {newMaxZIndex: maxIndex});
 	        	
 	        	// Send the focus event to the iframe
 	        	this.sendEventToIframe({event: "jswmWindowFocus", windowId: this.id});
@@ -351,47 +360,21 @@ content. Default is #eee.
         		}
 	        });
         }
-
-        connectedCallback()
-        {
-        	super.connectedCallback();
-
-        	// Emit the created window event
-	        let detail = {wnd: this};
-        	let event = new CustomEvent("jswmWindowCreated", {
-        		detail: detail,
-        		bubbles: true,
-        		composed: true
-        	});
-        	this.dispatchEvent(event);
-
-	        // Set initial geometry
-	        this.$.main.style.setProperty("--windowWidth", this.width + "px");
-	        this.$.main.style.setProperty("--windowHeight", this.height + "px");
-	        this.$.main.style.setProperty("--windowLeft", this.left + "px");
-	        this.$.main.style.setProperty("--windowTop", this.top + "px");
-        }
 		
 		makeActive()
 		{
 			jswmDebug(`JSWMwindow::makeActive -> emitting jswmWindowFocus event (window id: ${this.id} caption: ${this.title})`);
+			
 			// Emit the window focus event
-        	let event = new CustomEvent("jswmWindowFocus",
-        	{
-        		detail: {windowId: this.id}, bubbles: true, composed: true
-        	});
-        	this.dispatchEvent(event);
+			jswmEmitEvent(this, "jswmWindowFocus", {windowId: this.id});
 		}
 
         close()
         {
         	jswmDebug(`JSWMwindow::close -> emitting jswmWindowDestroyed event (window id: ${this.id} caption: ${this.title})`);
+        	
         	// Emit the destroyed window event
-        	let event = new CustomEvent("jswmWindowDestroyed", 
-        	{
-        		detail: {windowId: this.id}, bubbles: true, composed: true
-        	});
-        	this.dispatchEvent(event);
+        	jswmEmitEvent(this, "jswmWindowDestroyed", {windowId: this.id});
 
         	// Destroy the window
         	this.parentElement.removeChild(this);
@@ -402,11 +385,7 @@ content. Default is #eee.
         	jswmDebug(`JSWMwindow::minimize -> emitting jswmWindowMinimized event (window id: ${this.id} caption: ${this.title})`);
         	
         	// Emit the minimized window event
-        	let event = new CustomEvent("jswmWindowMinimized",
-        	{
-        		detail: {windowId: this.id}, bubbles: true, composed: true
-        	});
-        	this.dispatchEvent(event);
+        	jswmEmitEvent(this, "jswmWindowMinimized", {windowId: this.id});
 
         	// Send event to iframe
 				this.sendEventToIframe({event: "jswmWindowMinimized", windowId: this.id});
@@ -436,11 +415,7 @@ content. Default is #eee.
 	        	this.$.se.classList.remove("no-radius");
 
 	        	// Emit the restored window event
-	        	let event = new CustomEvent("jswmWindowRestored",
-	        	{
-	        		detail: {windowId: this.id}, bubbles: true, composed: true
-	        	});
-	        	this.dispatchEvent(event);
+	        	jswmEmitEvent(this, "jswmWindowRestored", {windowId: this.id});
 
 	        	// Send event to iframe
 				this.sendEventToIframe({event: "jswmWindowRestored", windowId: this.id});
@@ -469,11 +444,7 @@ content. Default is #eee.
 	        	this.$.se.classList.add("no-radius");
 
 	        	// Emit the maximized window event
-	        	let event = new CustomEvent("jswmWindowMaximized",
-	        	{
-	        		detail: {windowId: this.id}, bubbles: true, composed: true
-	        	});
-	        	this.dispatchEvent(event);
+	        	jswmEmitEvent(this, "jswmWindowMaximized", {windowId: this.id});
 
 	        	// Send event to iframe
 				this.sendEventToIframe({event: "jswmWindowMaximized", windowId: this.id});

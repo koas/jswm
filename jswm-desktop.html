@@ -238,9 +238,6 @@ Default is #fff.
 		static get properties()
 		{
 			return {
-				id: {type: String, 
-					 value: "jswmDesktop_"+ Math.floor(Math.random() * 9999999),
-				 reflectToAttribute: true},
 				backgroundColor: {type: String, value: "#115287", reflectToAttribute: true},
 				wallpaperUrl: {type: String, value: "", reflectToAttribute: true},
 				wallpaperMode: {type: String, value: "cover", reflectToAttribute: true}
@@ -258,8 +255,15 @@ Default is #fff.
 	        this.mouseWindow = "";
 	        this.windowsList = [];
 
+	        // If the jswm-desktop element does not have an id, create one
+		    if (!this.getAttribute("id"))
+		    {
+		    	let id = Math.floor(Math.random() * 9999999);
+		        this.setAttribute("id", "jswmDesktop_" + id);
+		    }
+
 	        // Listen to created window event
-	        this.addEventListener("jswmWindowCreated", (e) => 
+	        jswmListenToEvent(this, "jswmWindowCreated", (e) => 
 	        {
 	        	// Add window to list
 	        	this.windowsList.push(e.detail.wnd);
@@ -268,7 +272,7 @@ Default is #fff.
 	        });
 
 	        // Listen to destroyed window event
-	        this.addEventListener("jswmWindowDestroyed", (e) => 
+	        jswmListenToEvent(this, "jswmWindowDestroyed", (e) => 
 	        {
 	        	// Remove window from list
 	        	for (let x = 0; x < this.windowsList.length; ++x)
@@ -285,7 +289,7 @@ Default is #fff.
 	        });
 
 			// Listen to new window zIndex event
-	        this.addEventListener("jswmNewMaxWindowZIndex", (e) => 
+	        jswmListenToEvent(this, "jswmNewMaxWindowZIndex", (e) => 
 	        {
 	        	let zIndex = ++e.detail.newMaxZIndex;
 	        	this.$.appMenuContainer.style.zIndex = zIndex;
@@ -295,11 +299,7 @@ Default is #fff.
 
 	        // Emit the desktop created event
 	        jswmDebug("JSWMdesktop -> emitting jswmDesktopCreated event");
-        	let event = new CustomEvent("jswmDesktopCreated",
-        	{
-        		detail: {desktop: this}, bubbles: true, composed: true
-        	});
-        	this.dispatchEvent(event);
+	        jswmEmitEvent(this, "jswmDesktopCreated", {desktop: this});
 	    }
 		
 		toggleAppMenu(appData, rootCaption)
@@ -433,11 +433,7 @@ Default is #fff.
 			this.toggleAppMenu();
 
 			// Set the focus to the new window
-			let event = new CustomEvent("jswmWindowFocus",
-        	{
-        		detail: {windowId: windowId}, bubbles: true, composed: true
-        	});
-        	this.dispatchEvent(event);
+			jswmEmitEvent(this, "jswmWindowFocus", {windowId: windowId});
 		}
 
 		mouseDown(e)
@@ -461,11 +457,7 @@ Default is #fff.
 					// cover their iframes with a transparent div to avoid
 					// problems when resizing windows that are positioned over
 					// other windows
-					let event = new CustomEvent("jswmCoverIframes",
-		        	{
-		        		bubbles: true, composed: true
-		        	});
-		        	this.dispatchEvent(event);
+					jswmEmitEvent(this, "jswmCoverIframes");
 				}
 			}
 		}
@@ -477,11 +469,7 @@ Default is #fff.
 				// Emit the uncover iframes event. All windows will remove the
 				// transparent div over their iframes, making them responsive 
 				// again.
-				let event = new CustomEvent("jswmUncoverIframes",
-	        	{
-	        		bubbles: true, composed: true
-	        	});
-	        	this.dispatchEvent(event);
+				jswmEmitEvent(this, "jswmUncoverIframes");
 			}
 			
 			this.mouseWindow = null;
