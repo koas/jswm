@@ -14,7 +14,8 @@ width: initial window width in pixels, default is 300
 height: initial window height in pixels, default is 300
 left: initial left position in pixels, default is 0
 top: initial top position in pixels, default is 0
-title-bar: 1 to show the window title bar, 0 to hide it, default is 1
+title-bar: 1 to show the window title bar, 0 to hide it, default is 1. When the
+title bar is hidden the window can't be moved or resized.
 maximized: 1 to show the window maximized, default is 0
 
 Events:
@@ -91,6 +92,11 @@ content. Default is #eee.
 			"w content e"
 			"sw s se";
 			box-shadow: 0 25px 25px 0 rgba(0, 0, 0, 0.5), 0 0 25px 5px rgba(0, 0, 0, 0.25);
+		}
+		.mainNoResize {
+			grid-template-columns: auto;
+			grid-template-rows: auto;
+			grid-template-areas: "content";
 		}
 		.nw {
 			grid-area: nw;
@@ -234,12 +240,12 @@ content. Default is #eee.
 		<div id="main" class="main" on-mousedown="makeActive">
 			<div id="nw" class="nw" data-mouseOp="resizeNW" on-mousedown="setMouseOp"></div>
 			<div id="ne" class="ne" data-mouseOp="resizeNE" on-mousedown="setMouseOp"></div>
-			<div class="n" data-mouseOp="resizeN" on-mousedown="setMouseOp"></div>
 			<div id="sw" class="sw" data-mouseOp="resizeSW" on-mousedown="setMouseOp"></div>
 			<div id="se" class="se" data-mouseOp="resizeSE" on-mousedown="setMouseOp"></div>
-			<div class="s" data-mouseOp="resizeS" on-mousedown="setMouseOp"></div>
-			<div class="w" data-mouseOp="resizeW" on-mousedown="setMouseOp"></div>
-			<div class="e" data-mouseOp="resizeE" on-mousedown="setMouseOp"></div>
+			<div id="n" class="n" data-mouseOp="resizeN" on-mousedown="setMouseOp"></div>
+			<div id="s" class="s" data-mouseOp="resizeS" on-mousedown="setMouseOp"></div>
+			<div id="w" class="w" data-mouseOp="resizeW" on-mousedown="setMouseOp"></div>
+			<div id="e" class="e" data-mouseOp="resizeE" on-mousedown="setMouseOp"></div>
 			<div class="content">
 				<div id="title" class="title">
 					<div class="caption" data-mouseOp="move" 
@@ -306,9 +312,21 @@ content. Default is #eee.
 	        this.$.main.style.setProperty("--windowLeft", this.left + "px");
 	        this.$.main.style.setProperty("--windowTop", this.top + "px");
 
-	        // If titleBar is 0 hide title bar
+	        // If titleBar is 0 hide title bar and remove resize divs
 	        if (this.titleBar === 0)
+	        {
 	        	this.$.title.style.display = "none";
+
+	        	this.$.nw.parentNode.removeChild(this.$.nw);
+	        	this.$.ne.parentNode.removeChild(this.$.ne);
+	        	this.$.sw.parentNode.removeChild(this.$.sw);
+	        	this.$.se.parentNode.removeChild(this.$.se);
+	        	this.$.n.parentNode.removeChild(this.$.n);
+	        	this.$.s.parentNode.removeChild(this.$.s);
+	        	this.$.w.parentNode.removeChild(this.$.w);
+	        	this.$.e.parentNode.removeChild(this.$.e);
+	        	this.$.main.classList.add("mainNoResize");
+	        }
 
 	        // If maximized is set, maximize window
 	        if (this.maximized == 1)
@@ -614,7 +632,8 @@ content. Default is #eee.
 			jswmDebug(`JSWMwindow::sendEventToIframe (window id: ${this.id} caption: ${this.title})`);
 			jswmDebug(eventData);
 
-			this.$.ifr.contentWindow.postMessage(eventData, "*");
+			if (this.$.ifr.contentWindow)
+				this.$.ifr.contentWindow.postMessage(eventData, "*");
 		}
 	}
 

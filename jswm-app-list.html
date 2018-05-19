@@ -30,7 +30,11 @@ start color. Default is #3f3f3f.
 
 --jswmAppListItemFontSize: buttons font size. Default is 13px.
 
---jswmAppListItemFontColor: buttons font color. Default is #fff;
+--jswmAppListItemFontColor: buttons font color. Default is #fff.
+
+--jswmAppListCloseButtonWidth: width of the close button. Default is 16px.
+
+--jswmAppListCloseButtonHeight: height of the close button. Default is 16px.
 -->
 
 
@@ -70,6 +74,16 @@ start color. Default is #3f3f3f.
 		.active {
 			background: linear-gradient(to bottom, var(--jswmAppListActiveItemBackgroundGradientStart, #898989) 0%, var(--jswmAppListActiveItemBackgroundGradientEnd, #3f3f3f) 100%);
 		}
+		.buttonClose {
+			display: inline-block;
+			vertical-align: middle;
+			margin-left: 10px;
+			width: var(--jswmAppListCloseButtonWidth, 16px);
+			height: var(--jswmAppListCloseButtonHeight, 16px);
+			background-position: center center;
+			background-size: cover;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAo0lEQVQ4ja2TuxGDMBBEV1sCmWtwqhE9UABFUgA9oLmUNihhx4kcGCPrPOJC3b6nOX2CmT0kDSmlHX9UzvlJ8qCkgeRqZqMXNrOR5CppYNl5BrB4JCWzAJhTSnu4asQYtxb8zoRWoNX7ENSCv8RfgjNQlqqjXQpOEtRgAGBN4K37R+g6xK5r7HpIHrgmCeVXrR74LJE0keQhafLCABBj3Ap8vACB1I8/lp7rGwAAAABJRU5ErkJggg==);
+		}
 		</style>
 		<nav id="list">
 		</nav>
@@ -95,13 +109,18 @@ start color. Default is #3f3f3f.
 	        	jswmDebug("JSWMappList jswmWindowCreated event listener");
 	        	let wnd = e.detail.wnd;
 
-	        	// Create and add an app button  to the list
+	        	// Create and add an app button to the list
+	        	let close = document.createElement("div");
+	        	close.classList.add("buttonClose");
+	        	close.addEventListener("click", this.closeClicked.bind(this));
+
 	        	let b = document.createElement("button");
 				b.innerHTML = wnd.title;
 				b.setAttribute("data-windowId", wnd.id);
 				b.setAttribute("title", wnd.title);
 				b.addEventListener("click", this.clicked.bind(this));
 				b.addEventListener("auxclick", this.clicked.bind(this));
+				b.appendChild(close);
 				this.$.list.appendChild(b);
 
 				this.setActiveWindow(wnd.id);
@@ -125,14 +144,15 @@ start color. Default is #3f3f3f.
 				}
 	        });
 
-	        // Listen to destroyed window event
+	        // Listen to the destroyed window event
 	        jswmListenToEvent(this, "jswmWindowDestroyed", (e) => 
 	        {
-	        	// Remove window button
-	        	let buttons = this.getElementsByTagName("button");
+	        	// Remove the window button
+	        	let buttons = this.$.list.getElementsByTagName("button");
 				for (let x = 0; x < buttons.length; ++x)
 				{
-	    			if (buttons[x].getAttribute("data-windowId") == e.detail.windowId)
+					let buttonWindowId = buttons[x].getAttribute("data-windowId");
+	    			if (buttonWindowId == e.detail.windowId)
 	    			{
 	    				buttons[x].parentNode.removeChild(buttons[x]);
 	    				break;
@@ -165,13 +185,21 @@ start color. Default is #3f3f3f.
 			}
 		}
 
+		closeClicked(e)
+		{
+			let windowId = e.target.parentNode.getAttribute("data-windowId");
+			document.getElementById(windowId).close();
+		}
+
 		clicked(e)
 		{
 			let windowId = e.target.getAttribute("data-windowId");
 
 			// If clicked with middle button, close window
 			if (e.button === 1)
+			{
 				document.getElementById(windowId).close();
+			}
 
 			// If clicked with left button, activate window
 			if (e.button === 0)
