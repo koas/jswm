@@ -68,6 +68,12 @@ content. Default is #eee.
 
 --jswmWindowButtonHeight: height of the window buttons. Default is 16px.
 
+--jswmWindowCloseButtonImage: close button image. Default is an X icon.
+
+--jswmWindowMaximizeButtonImage: maximize button image. Default is an square icon.
+
+--jswmWindowMinimizeButtonImage: minimize button image. Default is a _ icon.
+
 -->
 
 <dom-module id="jswm-window">
@@ -196,7 +202,7 @@ content. Default is #eee.
 			background-position: center center;
 			background-size: cover;
 			cursor: pointer;
-			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoUlEQVQ4jZ3SSwqDMBAGYO+ReLWAMJCJOoW4CJg5kiBdlLYre7UuSrHB1Dxmlc3/MY80mvgK4GRTWF0/tTjw+nmM/lmCdP3UGuK7Qit2LRM5hIOWEsjf8LcAnNTEjxiSDJ8h2eEYUhwOkJFfhvxWHN7b9pu5VAC/bQM4WTRCbOZs5GxhSSRn2wqtMMS36C/MnfOA1Nw5QHDgtebOCq3QNC9vVkWLrEbgQiEAAAAASUVORK5CYII=);
+			background-image: var(--jswmWindowCloseButtonImage, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoUlEQVQ4jZ3SSwqDMBAGYO+ReLWAMJCJOoW4CJg5kiBdlLYre7UuSrHB1Dxmlc3/MY80mvgK4GRTWF0/tTjw+nmM/lmCdP3UGuK7Qit2LRM5hIOWEsjf8LcAnNTEjxiSDJ8h2eEYUhwOkJFfhvxWHN7b9pu5VAC/bQM4WTRCbOZs5GxhSSRn2wqtMMS36C/MnfOA1Nw5QHDgtebOCq3QNC9vVkWLrEbgQiEAAAAASUVORK5CYII=));
 		}
 		.maximize {
 			width: var(--jswmWindowButtonWidth, 16px);
@@ -205,7 +211,7 @@ content. Default is #eee.
 			background-position: center center;
 			background-size: cover;
 			cursor: pointer;
-			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVQ4jWPIyK2+k5lTvYI8XHWLITOnegUDmSAzp3rFqAGjBowaQDUDsqvuZuRUryEPV90GAInCdxSs9GJNAAAAAElFTkSuQmCC);
+			background-image: var(--jswmWindowMaximizeButtonImage, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVQ4jWPIyK2+k5lTvYI8XHWLITOnegUDmSAzp3rFqAGjBowaQDUDsqvuZuRUryEPV90GAInCdxSs9GJNAAAAAElFTkSuQmCC));
 			margin-right: 16px;
 		}
 		.minimize {
@@ -215,7 +221,7 @@ content. Default is #eee.
 			background-position: center center;
 			background-size: cover;
 			cursor: pointer;
-			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVQ4jWNgGPogMb1Yi1y9qdnl2gzpuVXz07Iq3EjVnJ5d6ZWZXb2AIS0tjTUzp2ppRk6FA/Gaq5wzc6qWpqWlsTIwMDAweHp6smfmVK9KzSq3IqQ5JbPSNjOnelVoaCgbikRoaChnRnb1uvT0MhNcmtOyK80zsqvXOTgkcGBVEBqaxZOZU7kxPb1cH1NzqVFmTuXG2NhYbrxOTEsr58/IrtyKHDvJGSU6mbnVW/ySkngJ+BDqkuRCoczc6m0J6aWqaWnFGhnZlVsTEgoEiNIMA4mJuaLp2RUHM3Kq98fFZQuTpBkG0tIqNaLSS1XJ0jx0AAD6B0okJCi9VgAAAABJRU5ErkJggg==);
+			background-image: var(--jswmWindowMinimizeButtonImage, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVQ4jWNgGPogMb1Yi1y9qdnl2gzpuVXz07Iq3EjVnJ5d6ZWZXb2AIS0tjTUzp2ppRk6FA/Gaq5wzc6qWpqWlsTIwMDAweHp6smfmVK9KzSq3IqQ5JbPSNjOnelVoaCgbikRoaChnRnb1uvT0MhNcmtOyK80zsqvXOTgkcGBVEBqaxZOZU7kxPb1cH1NzqVFmTuXG2NhYbrxOTEsr58/IrtyKHDvJGSU6mbnVW/ySkngJ+BDqkuRCoczc6m0J6aWqaWnFGhnZlVsTEgoEiNIMA4mJuaLp2RUHM3Kq98fFZQuTpBkG0tIqNaLSS1XJ0jx0AAD6B0okJCi9VgAAAABJRU5ErkJggg==));
 			margin: 0 16px;
 		}
 		.no-radius {

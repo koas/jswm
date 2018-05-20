@@ -8,7 +8,7 @@ https://github.com/koas/jswm
 
 Properties:
 
-backgroundColor: default is 115287
+background-color: default is 115287
 wallpaper-url: URL for the wallpaper. Default is none (no wallpaper)
 wallpaper-mode: "center" center the image on screen, no repeating.
 			    "mosaic" repeat the image horizontally and vertically
@@ -17,6 +17,7 @@ wallpaper-mode: "center" center the image on screen, no repeating.
 			    "cover" resize the image to cover the entire container, even if 
 			    it has to stretch the image or cut a little bit off one of the 
 			    edges. This is the default value.
+
 
 Events:
 
@@ -48,6 +49,11 @@ Default is 32px.
 
 --jswmDesktopAppMenuButtonHeight: height of the app menu buttons (close and back). 
 Default is 32px.
+
+--jswmDesktopAppMenuBackButtonImage: back button image. Defaut is an arrow 
+pointing to the left.
+
+--jswmDesktopAppMenuCloseButtonImage: close button image. Default is an X icon.
 
 --jswmDesktopAppMenuItemFontFamily: font family of the app menu items. 
 Default is Arial.
@@ -156,7 +162,7 @@ Default is #fff.
 		.appMenuHeaderFolderBack {
 			width: var(--jswmDesktopAppMenuButtonWidth, 32px);
 			height: var(--jswmDesktopAppMenuButtonHeight, 32px);
-			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACOUlEQVRYhe2XT4jNURTH7/xhUDaWtpLYUrKgX2nUQyTdlI3xTPeec+85vzGY99495zelJsXGwmKSYqHkTylFxNrSxtZCycJiChHGGH4WbzuG6f38pObU3X3P/Xy6i3vPNWa5/rcaDa3Nxpj+fwJ3UWLIixLzya21wz2lMyEvSh+lXTscYypCXpSeZKxudh9EPRfyooSQfO1wR52LQPLdxXSsbng/sEwj67ynzpFaydbaASS9hqxzEDuHaoVnWTaIJDeAddbHtLdWuLV2JXK6iyyffJTdtcKzbGQVsj7AqB9GMe2sFe6cWwMkTzzJOxfT9lrhxhgDnF4DyVcM+hhJb/W6IMpNYLkKJJM+ynCj0RhaXIDkVciLEqM+r0IASe8g60MkeRHyokTWt8hy3p4YX7eggLV2tWd9hKzvfUw7qjzdZrO1Hii1gNMbjDLjY/vggsFGozHkWe8By0cf27uqlDDGmAPN5lpguRzyogSS8QVDzrkVwHIbSD/7KMNVSxhjjCfh7rsiIwsGsiwbBNbrwDoLMe3/KxKsU8jypYmtTb/K9HvSK0DyDahzuGoBa+0A5ukZULq/WK4PSS4h67wjOVq1hAudPSEvyuP+9JZFJYD0ArL+gCjNih36POtLzzr12yCQnO1OQxqqNACWaWB5+mdhSp3uPJhOVSXgSQGjzPxxA8Z0sntjpqIKARxTi6zzS2rypBDyovS+ta1XAYftfcg6t+TGET+x0VTwMbHWDjg3saHXfZar5/oJIbMtHe5+/g0AAAAASUVORK5CYII=);
+			background-image: var(--jswmDesktopAppMenuBackButtonImage, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACOUlEQVRYhe2XT4jNURTH7/xhUDaWtpLYUrKgX2nUQyTdlI3xTPeec+85vzGY99495zelJsXGwmKSYqHkTylFxNrSxtZCycJiChHGGH4WbzuG6f38pObU3X3P/Xy6i3vPNWa5/rcaDa3Nxpj+fwJ3UWLIixLzya21wz2lMyEvSh+lXTscYypCXpSeZKxudh9EPRfyooSQfO1wR52LQPLdxXSsbng/sEwj67ynzpFaydbaASS9hqxzEDuHaoVnWTaIJDeAddbHtLdWuLV2JXK6iyyffJTdtcKzbGQVsj7AqB9GMe2sFe6cWwMkTzzJOxfT9lrhxhgDnF4DyVcM+hhJb/W6IMpNYLkKJJM+ynCj0RhaXIDkVciLEqM+r0IASe8g60MkeRHyokTWt8hy3p4YX7eggLV2tWd9hKzvfUw7qjzdZrO1Hii1gNMbjDLjY/vggsFGozHkWe8By0cf27uqlDDGmAPN5lpguRzyogSS8QVDzrkVwHIbSD/7KMNVSxhjjCfh7rsiIwsGsiwbBNbrwDoLMe3/KxKsU8jypYmtTb/K9HvSK0DyDahzuGoBa+0A5ukZULq/WK4PSS4h67wjOVq1hAudPSEvyuP+9JZFJYD0ArL+gCjNih36POtLzzr12yCQnO1OQxqqNACWaWB5+mdhSp3uPJhOVSXgSQGjzPxxA8Z0sntjpqIKARxTi6zzS2rypBDyovS+ta1XAYftfcg6t+TGET+x0VTwMbHWDjg3saHXfZar5/oJIbMtHe5+/g0AAAAASUVORK5CYII=));
 			margin: 0 20px 0 10px;
 			cursor: pointer;
 			background-size: cover;
@@ -171,7 +177,7 @@ Default is #fff.
 		.appMenuHeaderClose {
 			width: var(--jswmDesktopAppMenuButtonWidth, 32px);
 			height: var(--jswmDesktopAppMenuButtonHeight, 32px);
-			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4ElEQVRYhcXWSQ6DMAxA0dw2kwmwjMtdEb0IXUUVcxJsh2WR+p8YbJQFXKyPgxI+DOBoARdlfRxcmFZJhAEcXZhWDdhtfpBAHOL7E5yIy7gE4jHOiciOcyCK45SI6vjJH/Ti8XSkOVGCIIvXIMjjJQi2eA6CPX6HEIufIcTje0STuFL/y+7CtBofQ5O4Buw0YC+KOLvnYoi7B44dkfO0syFKXjVyRM17ToZ4M2ReIygmXEJUfw1RTDjjY6j6HqQcr9kIzsXyiJDYapcIyZV6QLTY5xuEhc+3xT7XgJ31OP8AxupkenBG78AAAAAASUVORK5CYII=);
+			background-image: var(--jswmDesktopAppMenuCloseButtonImage, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4ElEQVRYhcXWSQ6DMAxA0dw2kwmwjMtdEb0IXUUVcxJsh2WR+p8YbJQFXKyPgxI+DOBoARdlfRxcmFZJhAEcXZhWDdhtfpBAHOL7E5yIy7gE4jHOiciOcyCK45SI6vjJH/Ti8XSkOVGCIIvXIMjjJQi2eA6CPX6HEIufIcTje0STuFL/y+7CtBofQ5O4Buw0YC+KOLvnYoi7B44dkfO0syFKXjVyRM17ToZ4M2ReIygmXEJUfw1RTDjjY6j6HqQcr9kIzsXyiJDYapcIyZV6QLTY5xuEhc+3xT7XgJ31OP8AxupkenBG78AAAAAASUVORK5CYII=));
 			margin-right: 10px;
 			cursor: pointer;
 			background-size: cover;
